@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 680">
+  <defs>
+    <linearGradient id="claudeBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8DDD4"/>
+      <stop offset="100%" style="stop-color:#D5C4B5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1050" height="680" rx="24" fill="url(#claudeBg)"/>
+  <!-- Claude Sparkle - оригинальный стиль Anthropic -->
+  <g transform="translate(525, 340)">
+    <!-- Центр -->
+    <circle cx="0" cy="0" r="16" fill="#D97757"/>
+    <!-- Верхний луч -->
+    <path d="M0,-28 L8,-70 L0,-120 L-8,-70 Z" fill="#D97757"/>
+    <!-- Нижний луч -->
+    <path d="M0,28 L8,70 L0,120 L-8,70 Z" fill="#D97757"/>
+    <!-- Левый луч -->
+    <path d="M-28,0 L-70,8 L-120,0 L-70,-8 Z" fill="#D97757"/>
+    <!-- Правый луч -->
+    <path d="M28,0 L70,8 L120,0 L70,-8 Z" fill="#D97757"/>
+    <!-- Диагональ верх-лево -->
+    <path d="M-20,-20 L-50,-44 L-85,-85 L-44,-50 Z" fill="#D97757"/>
+    <!-- Диагональ верх-право -->
+    <path d="M20,-20 L50,-44 L85,-85 L44,-50 Z" fill="#D97757"/>
+    <!-- Диагональ низ-лево -->
+    <path d="M-20,20 L-50,44 L-85,85 L-44,50 Z" fill="#D97757"/>
+    <!-- Диагональ низ-право -->
+    <path d="M20,20 L50,44 L85,85 L44,50 Z" fill="#D97757"/>
+  </g>
+</svg>

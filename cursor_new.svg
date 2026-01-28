@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 680">
+  <defs>
+    <linearGradient id="cursorBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0f23"/>
+      <stop offset="100%" style="stop-color:#1a1a3e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1050" height="680" rx="24" fill="url(#cursorBg)"/>
+  <!-- Cursor 3D Cube - оригинальный стиль -->
+  <g transform="translate(525, 340)">
+    <!-- Верхняя грань (светлая) -->
+    <polygon points="0,-100 120,-50 0,0 -120,-50" fill="#CCCCCC"/>
+    <!-- Левая грань (средняя) -->
+    <polygon points="-120,-50 0,0 0,100 -120,50" fill="#888888"/>
+    <!-- Правая грань (тёмная) -->
+    <polygon points="120,-50 0,0 0,100 120,50" fill="#666666"/>
+    <!-- Грани куба - обводка -->
+    <path d="M0,-100 L120,-50 L0,0 L-120,-50 Z" stroke="#444444" stroke-width="2" fill="none"/>
+    <path d="M0,0 L0,100" stroke="#444444" stroke-width="2"/>
+    <path d="M-120,-50 L-120,50 L0,100" stroke="#444444" stroke-width="2" fill="none"/>
+    <path d="M120,-50 L120,50 L0,100" stroke="#444444" stroke-width="2" fill="none"/>
+  </g>
+</svg>

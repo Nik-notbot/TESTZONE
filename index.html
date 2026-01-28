@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEY, STORE! - Цифровые товары</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <div class="logo-section">
+                <img src="logo.png" alt="HEY, STORE!" class="logo-image">
+                <div>
+                    <h1>HEY, STORE!</h1>
+                    <p>Сервисы без санкций</p>
+                </div>
+            </div>
+            <nav class="nav-left">
+                <a href="https://t.me/hey_store_official" target="_blank" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path>
+                        <path d="m21.854 2.147-10.94 10.939"></path>
+                    </svg>
+                    <span>Канал</span>
+                </a>
+                <a href="https://t.me/hey_store_bot" target="_blank" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
+                    </svg>
+                    <span>Поддержка</span>
+                </a>
+                <a href="https://blog.heystore.net/" target="_blank" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                        <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                        <path d="M10 9H8"></path>
+                        <path d="M16 13H8"></path>
+                        <path d="M16 17H8"></path>
+                    </svg>
+                    <span>Блог</span>
+                </a>
+            </nav>
+        </div>
+        <div class="header-right">
+            <button class="theme-toggle nav-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 2v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="m4.93 4.93 1.41 1.41"></path>
+                    <path d="m17.66 17.66 1.41 1.41"></path>
+                    <path d="M2 12h2"></path>
+                    <path d="M20 12h2"></path>
+                    <path d="m6.34 17.66-1.41 1.41"></path>
+                    <path d="m19.07 4.93-1.41 1.41"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h2>Оплачивайте зарубежные<br><span class="hero-accent">сервисы</span> рублями</h2>
+    </section>
+
+    <!-- Popular Section -->
+    <section class="popular-section">
+        <div class="section-header">
+            <h3>Популярное</h3>
+            <span class="section-subtitle">Нейросети, игры и многое другое</span>
+        </div>
+        <div class="slider-container">
+            <button class="slider-arrow slider-prev" onclick="slidePopular(-1)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+            </button>
+            <div class="popular-grid-wrapper">
+            <div class="popular-grid" id="popularGrid">
+                <a href="#" class="popular-card">
+                    <div class="popular-icon">
+                        <img src="chatgpt.png" alt="ChatGPT">
+                    </div>
+                    <span>ChatGPT</span>
+                </a>
+                <a href="#" class="popular-card">
+                    <div class="popular-icon">
+                        <img src="claude.png" alt="Claude">
+                    </div>
+                    <span>Claude</span>
+                </a>
+                <a href="#" class="popular-card">
+                    <div class="popular-icon">
+                        <img src="cursor.png" alt="Cursor">
+                    </div>
+                    <span>Cursor</span>
+                </a>
+                <a href="#" class="popular-card">
+                    <div class="popular-icon">
+                        <img src="steam.png" alt="Steam">
+                    </div>
+                    <span>Steam</span>
+                </a>
+                <a href="#" class="popular-card">
+                    <div class="popular-icon">
+                        <img src="spotify.png" alt="Spotify">
+                    </div>
+                    <span>Spotify</span>
+                </a>
+                <a href="#" class="popular-card">
+                    <div class="popular-icon">
+                        <img src="playstation.png" alt="PlayStation">
+                    </div>
+                    <span>PlayStation</span>
+                </a>
+                <a href="#" class="popular-card">
+                    <div class="popular-icon">
+                        <img src="xbox.png" alt="Xbox">
+                    </div>
+                    <span>Xbox</span>
+                </a>
+                <a href="#" class="popular-card">
+                    <div class="popular-icon">
+                        <img src="apple.png" alt="Apple">
+                    </div>
+                    <span>Apple</span>
+                </a>
+            </div>
+            </div>
+            <button class="slider-arrow slider-next" onclick="slidePopular(1)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- Нейросети -->
+    <section class="category-section" id="ai">
+        <div class="section-header">
+            <h3>Нейросети</h3>
+            <a href="category-ai.html" class="see-more">ЕЩЁ →</a>
+        </div>
+        <div class="cards-row">
+            <a href="#" class="service-card">
+                <div class="service-icon chatgpt-bg">
+                    <img src="chatgpt.png" alt="ChatGPT">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">ChatGPT</span>
+                    <span class="service-price">от 1500 ₽</span>
+                </div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon claude-bg">
+                    <img src="claude.png" alt="Claude">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Claude</span>
+                    <span class="service-price">от 1500 ₽</span>
+                </div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon cursor-bg">
+                    <img src="cursor.png" alt="Cursor">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Cursor</span>
+                    <span class="service-price">от 1200 ₽</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Игровые платформы -->
+    <section class="category-section" id="gaming">
+        <div class="section-header">
+            <h3>Игровые платформы</h3>
+            <a href="category-gaming.html" class="see-more">ЕЩЁ →</a>
+        </div>
+        <div class="cards-row">
+            <a href="#" class="service-card">
+                <div class="service-icon steam-bg">
+                    <img src="steam.png" alt="Steam">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Пополнение Steam</span>
+                    <span class="service-price">от 500 ₽</span>
+                </div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon ps-bg">
+                    <img src="playstation.png" alt="PlayStation">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">PlayStation</span>
+                    <span class="service-price">от 1000 ₽</span>
+                </div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon xbox-bg">
+                    <img src="xbox.png" alt="Xbox">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Xbox</span>
+                    <span class="service-price">от 800 ₽</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Игровая валюта -->
+    <section class="category-section" id="currency">
+        <div class="section-header">
+            <h3>Игровая валюта</h3>
+            <a href="category-currency.html" class="see-more">ЕЩЁ →</a>
+        </div>
+        <div class="cards-row">
+            <a href="#" class="service-card">
+                <div class="service-icon roblox-bg">
+                    <img src="roblox.png" alt="Roblox">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Roblox</span>
+                    <span class="service-price">от 300 ₽</span>
+                </div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon fortnite-bg">
+                    <img src="fortnite.png" alt="Fortnite">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Fortnite</span>
+                    <span class="service-price">от 500 ₽</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Подписки -->
+    <section class="category-section" id="subscriptions">
+        <div class="section-header">
+            <h3>Подписки</h3>
+            <a href="category-subscriptions.html" class="see-more">ЕЩЁ →</a>
+        </div>
+        <div class="cards-row">
+            <a href="#" class="service-card">
+                <div class="service-icon spotify-bg">
+                    <img src="spotify.png" alt="Spotify">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Spotify</span>
+                    <span class="service-price">от 200 ₽</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Мобильные сервисы -->
+    <section class="category-section" id="mobile">
+        <div class="section-header">
+            <h3>Мобильные сервисы</h3>
+            <a href="category-mobile.html" class="see-more">ЕЩЁ →</a>
+        </div>
+        <div class="cards-row">
+            <a href="#" class="service-card">
+                <div class="service-icon apple-bg">
+                    <img src="apple.png" alt="Apple">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Apple</span>
+                    <span class="service-price">от 1000 ₽</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- CTA Banner -->
+    <section class="cta-banner">
+        <div class="cta-content">
+            <h3>Не нашли нужный сервис?</h3>
+            <p>Напишите нам — поможем быстро оформить и оплатить</p>
+        </div>
+        <a href="https://t.me/hey_store_bot" target="_blank" class="cta-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path>
+            </svg>
+            Написать в Telegram
+        </a>
+    </section>
+
+    <!-- How to order -->
+    <section class="how-to-section">
+        <h3>Как оформить заказ</h3>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h4>Выберите нужный сервис</h4>
+                <p>Найдите сервис в каталоге или напишите нам</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h4>Оставьте заявку</h4>
+                <p>Укажите почту и внесите предоплату</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h4>Получите доступ</h4>
+                <p>Мы пришлём инструкцию на вашу почту</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <h3>Вопросы и ответы</h3>
+        <div class="faq-list">
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Каким образом осуществляется оплата сервиса?</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="faq-icon">
+                        <path d="m18 15-6-6-6 6"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <p>После оформления заказа вам на указанную почту придет инструкция, следуйте указанным шагам</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>В какое время выполняются заказы?</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="faq-icon">
+                        <path d="m18 15-6-6-6 6"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <p>Заказы выполняются с 9:00 до 18:00 МСК. Если оплата произошла ночью, то заказ автоматически начнет выполняться с 9:00 следующего дня</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Возможен ли возврат средств?</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="faq-icon">
+                        <path d="m18 15-6-6-6 6"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <p>Возврат средств за выполненную услугу не предусмотрен. Пожалуйста, внимательно проверяй все данные перед покупкой</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 HEY, STORE! Все права защищены</p>
+    </footer>
+
+    <script>
+        // Infinite scroll for popular grid
+        const popularGrid = document.getElementById('popularGrid');
+        const popularWrapper = document.querySelector('.popular-grid-wrapper');
+        const cards = popularGrid.innerHTML;
+        popularGrid.innerHTML = cards + cards + cards; // Triple the cards for smooth looping
+
+        function slidePopular(direction) {
+            const scrollAmount = 160; // width of one card + gap
+            popularWrapper.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+
+        // Reset scroll position for infinite loop effect (seamless)
+        let isResetting = false;
+        
+        popularWrapper.addEventListener('scroll', () => {
+            if (isResetting) return;
+            
+            const sectionWidth = popularWrapper.scrollWidth / 3;
+            
+            if (popularWrapper.scrollLeft >= sectionWidth * 2 - 50) {
+                isResetting = true;
+                popularWrapper.style.scrollBehavior = 'auto';
+                popularWrapper.scrollLeft = sectionWidth + (popularWrapper.scrollLeft - sectionWidth * 2);
+                popularWrapper.style.scrollBehavior = 'smooth';
+                setTimeout(() => isResetting = false, 50);
+            } else if (popularWrapper.scrollLeft <= 50) {
+                isResetting = true;
+                popularWrapper.style.scrollBehavior = 'auto';
+                popularWrapper.scrollLeft = sectionWidth + popularWrapper.scrollLeft;
+                popularWrapper.style.scrollBehavior = 'smooth';
+                setTimeout(() => isResetting = false, 50);
+            }
+        });
+
+        // Initialize scroll position to middle
+        setTimeout(() => {
+            popularWrapper.style.scrollBehavior = 'auto';
+            popularWrapper.scrollLeft = popularWrapper.scrollWidth / 3;
+            popularWrapper.style.scrollBehavior = 'smooth';
+        }, 100);
+
+        // Theme Toggle
+        const themeToggle = document.querySelector('.theme-toggle');
+        const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>`;
+        const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>`;
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = sunIcon;
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggle.innerHTML = moonIcon;
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.innerHTML = sunIcon;
+            }
+        });
+
+        if (!savedTheme || savedTheme === 'light') {
+            themeToggle.innerHTML = moonIcon;
+        }
+
+        // FAQ Toggle
+        function toggleFaq(button) {
+            const faqItem = button.parentElement;
+            faqItem.classList.toggle('active');
+        }
+
+        // Popular cards center highlight
+        const popularCards = document.querySelectorAll('.popular-card');
+
+        function updateCenterCard() {
+            const wrapperRect = popularWrapper.getBoundingClientRect();
+            const gridCenter = wrapperRect.left + wrapperRect.width / 2;
+
+            let closestCard = null;
+            let closestDistance = Infinity;
+
+            popularCards.forEach(card => {
+                const cardRect = card.getBoundingClientRect();
+                const cardCenter = cardRect.left + cardRect.width / 2;
+                const distance = Math.abs(gridCenter - cardCenter);
+
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestCard = card;
+                }
+            });
+
+            popularCards.forEach(card => card.classList.remove('center-active'));
+            if (closestCard) {
+                closestCard.classList.add('center-active');
+            }
+        }
+
+        popularWrapper.addEventListener('scroll', updateCenterCard);
+        window.addEventListener('resize', updateCenterCard);
+        setTimeout(updateCenterCard, 200);
+    </script>
+</body>
+</html>
