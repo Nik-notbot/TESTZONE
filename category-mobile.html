@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мобильные сервисы - HEY, STORE!</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -28,15 +29,30 @@
     <section class="category-page">
         <a href="index.html" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Назад</a>
         <h2>Мобильные сервисы</h2>
-        <div class="category-grid">
-            <a href="#" class="category-card"><div class="category-icon"><img src="apple.png" alt="Apple"></div><span>Apple (App Store)</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="googleplay.png" alt="Google Play"></div><span>Google Play</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="telegram.png" alt="Telegram"></div><span>Telegram Premium</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="whatsapp.png" alt="WhatsApp"></div><span>WhatsApp Business</span></a>
+        <div class="cards-grid">
+            <a href="#" class="service-card">
+                <div class="service-icon apple-bg"><img src="apple.png" alt="Apple"></div>
+                <div class="service-info"><span class="service-name">Apple (App Store)</span><span class="service-price">от 500 ₽</span></div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon googleplay-bg"><img src="googleplay.png" alt="Google Play"></div>
+                <div class="service-info"><span class="service-name">Google Play</span><span class="service-price">от 500 ₽</span></div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon telegram-bg"><img src="telegram.png" alt="Telegram"></div>
+                <div class="service-info"><span class="service-name">Telegram Premium</span><span class="service-price">от 300 ₽</span></div>
+            </a>
         </div>
     </section>
 
-    <footer><p>© 2025 HEY, STORE! Все права защищены</p></footer>
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html">Политика конфиденциальности</a>
+            <a href="offer.html">Оферта</a>
+            <a href="personal-data.html">Обработка персональных данных</a>
+        </div>
+        <p>© 2025 HEY, STORE! Все права защищены</p>
+    </footer>
 
     <script>
         const themeToggle = document.querySelector('.theme-toggle');

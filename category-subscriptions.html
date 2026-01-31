@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Подписки - HEY, STORE!</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -28,19 +29,38 @@
     <section class="category-page">
         <a href="index.html" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Назад</a>
         <h2>Подписки</h2>
-        <div class="category-grid">
-            <a href="#" class="category-card"><div class="category-icon"><img src="spotify.png" alt="Spotify"></div><span>Spotify</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="youtube.png" alt="YouTube Premium"></div><span>YouTube Premium</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="discord.png" alt="Discord Nitro"></div><span>Discord Nitro</span></a>
-            <a href="service-netflix.html" class="category-card"><div class="category-icon"><img src="netflix.png" alt="Netflix"></div><span>Netflix</span></a>
-            <a href="service-onlyfans.html" class="category-card"><div class="category-icon"><img src="onlyfans.png" alt="OnlyFans"></div><span>OnlyFans</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="twitch.png" alt="Twitch"></div><span>Twitch</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="canva.png" alt="Canva Pro"></div><span>Canva Pro</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="crunchyroll.png" alt="Crunchyroll"></div><span>Crunchyroll</span></a>
+        <div class="cards-grid">
+            <a href="#" class="service-card">
+                <div class="service-icon spotify-bg"><img src="spotify.png" alt="Spotify"></div>
+                <div class="service-info"><span class="service-name">Spotify</span><span class="service-price">от 200 ₽</span></div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon youtube-bg"><img src="youtube.png" alt="YouTube Premium"></div>
+                <div class="service-info"><span class="service-name">YouTube Premium</span><span class="service-price">от 300 ₽</span></div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon"><img src="discord.png" alt="Discord Nitro"></div>
+                <div class="service-info"><span class="service-name">Discord Nitro</span><span class="service-price">от 400 ₽</span></div>
+            </a>
+            <a href="service-netflix.html" class="service-card">
+                <div class="service-icon netflix-bg"><img src="netflix.png" alt="Netflix"></div>
+                <div class="service-info"><span class="service-name">Netflix</span><span class="service-price">от 600 ₽</span></div>
+            </a>
+            <a href="service-canva.html" class="service-card">
+                <div class="service-icon"><img src="canva.png" alt="Canva Pro"></div>
+                <div class="service-info"><span class="service-name">Canva Pro</span><span class="service-price">от 800 ₽</span></div>
+            </a>
         </div>
     </section>
 
-    <footer><p>© 2025 HEY, STORE! Все права защищены</p></footer>
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html">Политика конфиденциальности</a>
+            <a href="offer.html">Оферта</a>
+            <a href="personal-data.html">Обработка персональных данных</a>
+        </div>
+        <p>© 2025 HEY, STORE! Все права защищены</p>
+    </footer>
 
     <script>
         const themeToggle = document.querySelector('.theme-toggle');
