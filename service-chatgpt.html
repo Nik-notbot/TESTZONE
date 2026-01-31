@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatGPT - HEY, STORE!</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -77,38 +78,163 @@
             
             <div class="service-page-info">
                 <h1>ChatGPT</h1>
-                <p class="service-page-description">Подписка на ChatGPT Plus — доступ к GPT-4, быстрые ответы и приоритетный доступ к новым функциям</p>
-                <div class="service-page-price">от 1500 ₽</div>
+                <p class="service-page-description">Подписка на ChatGPT — доступ к GPT-5.2, расширенные функции, генерация изображений и видео</p>
             </div>
 
-            <form class="service-form" onsubmit="handleSubmit(event)">
+            <form class="service-form" id="orderForm">
+                <div class="form-group plans-group">
+                    <label>Выберите тариф</label>
+                    <div class="plan-grid">
+                        <label class="plan-option">
+                            <input type="radio" name="plan" value="go" data-price="800" data-name="ChatGPT Go">
+                            <div class="plan-card">
+                                <span class="plan-badge go">Старт</span>
+                                <div class="plan-name">Go</div>
+                                <div class="plan-price">800 ₽<span>/мес</span></div>
+                                <ul class="plan-features">
+                                    <li>GPT-5.2 Instant</li>
+                                    <li>Больше сообщений</li>
+                                    <li>Создание GPT</li>
+                                    <li>Генерация картинок</li>
+                                </ul>
+                            </div>
+                        </label>
+                        <label class="plan-option">
+                            <input type="radio" name="plan" value="plus" data-price="1500" data-name="ChatGPT Plus" checked>
+                            <div class="plan-card featured">
+                                <span class="plan-badge">Популярный</span>
+                                <div class="plan-name">Plus</div>
+                                <div class="plan-price">1 500 ₽<span>/мес</span></div>
+                                <ul class="plan-features">
+                                    <li>GPT-5.2 Thinking</li>
+                                    <li>Codex агент</li>
+                                    <li>Sora видео</li>
+                                    <li>Deep Research</li>
+                                </ul>
+                            </div>
+                        </label>
+                        <label class="plan-option">
+                            <input type="radio" name="plan" value="pro" data-price="15000" data-name="ChatGPT Pro">
+                            <div class="plan-card">
+                                <span class="plan-badge pro">Максимум</span>
+                                <div class="plan-name">Pro</div>
+                                <div class="plan-price">15 000 ₽<span>/мес</span></div>
+                                <ul class="plan-features">
+                                    <li>GPT-5.2 Pro</li>
+                                    <li>Безлимит всего</li>
+                                    <li>128K контекст</li>
+                                    <li>Приоритет скорости</li>
+                                </ul>
+                            </div>
+                        </label>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="email">Электронная почта</label>
                     <input type="email" id="email" name="email" placeholder="example@mail.com" required>
                 </div>
-                <button type="submit" class="pay-button">
+                <button type="submit" class="pay-button" id="submitBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect width="20" height="14" x="2" y="5" rx="2"/>
                         <line x1="2" x2="22" y1="10" y2="10"/>
                     </svg>
-                    Оплатить
+                    <span id="btnText">Оплатить</span>
                 </button>
                 <p class="form-note">После оплаты инструкция придёт на указанную почту</p>
+                <p class="form-status" id="formStatus"></p>
             </form>
         </div>
     </section>
 
     <footer>
+        <div class="footer-links">
+            <a href="privacy.html">Политика конфиденциальности</a>
+            <a href="offer.html">Оферта</a>
+            <a href="personal-data.html">Обработка персональных данных</a>
+        </div>
         <p>© 2025 HEY, STORE! Все права защищены</p>
     </footer>
 
     <script>
-        function handleSubmit(event) {
-            event.preventDefault();
-            const email = document.getElementById('email').value;
-            // Redirect to Telegram bot with email
-            window.open('https://t.me/hey_store_bot?start=chatgpt_' + encodeURIComponent(email), '_blank');
+        // Baserow Configuration
+        const BASEROW_API_TOKEN = 'gUcyV8zyChn6xC8VbTF3eGE0sg92o3T5';
+        const BASEROW_TABLE_ID = '821829';
+        
+        // Telegram Configuration
+        const TG_BOT_TOKEN = '8433047336:AAEGAUDR3RWYPtPe2CcGKGHwEMtlB1k9IVU';
+        const TG_CHAT_ID = '7964821965';
+        
+        // Form Handler
+        const orderForm = document.getElementById('orderForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const formStatus = document.getElementById('formStatus');
+        
+        // Get selected plan info
+        function getSelectedPlan() {
+            const selected = document.querySelector('input[name="plan"]:checked');
+            return {
+                name: selected.dataset.name,
+                price: selected.dataset.price,
+                value: selected.value
+            };
         }
+        
+        // Send Telegram notification
+        async function sendTelegramNotification(email, plan) {
+            const message = `🛒 *Новый заказ!*\n\n📦 Продукт: ${plan.name}\n💰 Цена: ${plan.price} ₽\n📧 Email: ${email}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
+            try {
+                await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
+                });
+            } catch (e) { console.error('Telegram error:', e); }
+        }
+        
+        orderForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const plan = getSelectedPlan();
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.textContent = 'Отправка...';
+            formStatus.textContent = '';
+            formStatus.className = 'form-status';
+            
+            try {
+                const response = await fetch(`https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${BASEROW_API_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        'Email client': email,
+                        'Product name': plan.name,
+                        'Price': plan.price
+                    })
+                });
+                
+                if (response.ok) {
+                    await sendTelegramNotification(email, plan);
+                    formStatus.textContent = '✓ Заявка отправлена! Мы свяжемся с вами по email.';
+                    formStatus.className = 'form-status success';
+                    orderForm.reset();
+                } else {
+                    throw new Error('Ошибка сервера');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                formStatus.textContent = '✗ Ошибка отправки. Попробуйте ещё раз.';
+                formStatus.className = 'form-status error';
+            } finally {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Оплатить';
+            }
+        });
 
         // Theme Toggle
         const themeToggle = document.querySelector('.theme-toggle');

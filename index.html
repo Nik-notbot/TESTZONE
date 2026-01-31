@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HEY, STORE! - Цифровые товары</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -72,69 +73,112 @@
             <span class="section-subtitle">Нейросети, игры и многое другое</span>
         </div>
         <div class="slider-container">
-            <button class="slider-arrow slider-prev" onclick="slidePopular(-1)">
+            <button class="slider-arrow slider-prev" id="sliderPrev">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m15 18-6-6 6-6"/>
                 </svg>
             </button>
-            <div class="popular-grid-wrapper">
-            <div class="popular-grid" id="popularGrid">
-                <a href="#" class="popular-card">
-                    <div class="popular-icon">
-                        <img src="chatgpt.png" alt="ChatGPT">
-                    </div>
-                    <span>ChatGPT</span>
-                </a>
-                <a href="#" class="popular-card">
-                    <div class="popular-icon">
-                        <img src="claude.png" alt="Claude">
-                    </div>
-                    <span>Claude</span>
-                </a>
-                <a href="#" class="popular-card">
-                    <div class="popular-icon">
-                        <img src="cursor.png" alt="Cursor">
-                    </div>
-                    <span>Cursor</span>
-                </a>
-                <a href="#" class="popular-card">
-                    <div class="popular-icon">
-                        <img src="steam.png" alt="Steam">
-                    </div>
-                    <span>Steam</span>
-                </a>
-                <a href="#" class="popular-card">
-                    <div class="popular-icon">
-                        <img src="spotify.png" alt="Spotify">
-                    </div>
-                    <span>Spotify</span>
-                </a>
-                <a href="#" class="popular-card">
-                    <div class="popular-icon">
-                        <img src="playstation.png" alt="PlayStation">
-                    </div>
-                    <span>PlayStation</span>
-                </a>
-                <a href="#" class="popular-card">
-                    <div class="popular-icon">
-                        <img src="xbox.png" alt="Xbox">
-                    </div>
-                    <span>Xbox</span>
-                </a>
-                <a href="#" class="popular-card">
-                    <div class="popular-icon">
-                        <img src="apple.png" alt="Apple">
-                    </div>
-                    <span>Apple</span>
-                </a>
+            <div class="popular-track-wrapper">
+                <div class="popular-track" id="popularTrack">
+                    <a href="service-chatgpt.html" class="popular-card">
+                        <div class="popular-icon chatgpt-bg">
+                            <img src="chatgpt.png" alt="ChatGPT">
+                        </div>
+                        <div class="popular-info">
+                            <span class="popular-name">ChatGPT</span>
+                            <span class="popular-price">от 1500 ₽</span>
+                        </div>
+                    </a>
+                    <a href="service-claude.html" class="popular-card">
+                        <div class="popular-icon claude-bg">
+                            <img src="claude.png" alt="Claude">
+                        </div>
+                        <div class="popular-info">
+                            <span class="popular-name">Claude</span>
+                            <span class="popular-price">от 1500 ₽</span>
+                        </div>
+                    </a>
+                    <a href="service-midjourney.html" class="popular-card">
+                        <div class="popular-icon">
+                            <img src="midjourney.png" alt="Midjourney">
+                        </div>
+                        <div class="popular-info">
+                            <span class="popular-name">Midjourney</span>
+                            <span class="popular-price">от 2000 ₽</span>
+                        </div>
+                    </a>
+                    <a href="#" class="popular-card">
+                        <div class="popular-icon steam-bg">
+                            <img src="steam.png" alt="Steam">
+                        </div>
+                        <div class="popular-info">
+                            <span class="popular-name">Steam</span>
+                            <span class="popular-price">от 500 ₽</span>
+                        </div>
+                    </a>
+                    <a href="#" class="popular-card">
+                        <div class="popular-icon spotify-bg">
+                            <img src="spotify.png" alt="Spotify">
+                        </div>
+                        <div class="popular-info">
+                            <span class="popular-name">Spotify</span>
+                            <span class="popular-price">от 200 ₽</span>
+                        </div>
+                    </a>
+                    <a href="service-netflix.html" class="popular-card">
+                        <div class="popular-icon">
+                            <img src="netflix.png" alt="Netflix">
+                        </div>
+                        <div class="popular-info">
+                            <span class="popular-name">Netflix</span>
+                            <span class="popular-price">от 400 ₽</span>
+                        </div>
+                    </a>
+                    <a href="#" class="popular-card">
+                        <div class="popular-icon ps-bg">
+                            <img src="playstation.png" alt="PlayStation">
+                        </div>
+                        <div class="popular-info">
+                            <span class="popular-name">PlayStation</span>
+                            <span class="popular-price">от 1000 ₽</span>
+                        </div>
+                    </a>
+                    <a href="#" class="popular-card">
+                        <div class="popular-icon apple-bg">
+                            <img src="apple.png" alt="Apple">
+                        </div>
+                        <div class="popular-info">
+                            <span class="popular-name">Apple</span>
+                            <span class="popular-price">от 1000 ₽</span>
+                        </div>
+                    </a>
+                    <a href="service-gemini.html" class="popular-card">
+                        <div class="popular-icon">
+                            <img src="gemini.png" alt="Gemini">
+                        </div>
+                        <div class="popular-info">
+                            <span class="popular-name">Gemini</span>
+                            <span class="popular-price">от 1000 ₽</span>
+                        </div>
+                    </a>
+                    <a href="service-grok.html" class="popular-card">
+                        <div class="popular-icon">
+                            <img src="grok.png" alt="Grok AI">
+                        </div>
+                        <div class="popular-info">
+                            <span class="popular-name">Grok AI</span>
+                            <span class="popular-price">от 1500 ₽</span>
+                        </div>
+                    </a>
+                </div>
             </div>
-            </div>
-            <button class="slider-arrow slider-next" onclick="slidePopular(1)">
+            <button class="slider-arrow slider-next" id="sliderNext">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m9 18 6-6-6-6"/>
                 </svg>
             </button>
         </div>
+        <div class="slider-dots" id="sliderDots"></div>
     </section>
 
     <!-- Нейросети -->
@@ -144,7 +188,7 @@
             <a href="category-ai.html" class="see-more">ЕЩЁ →</a>
         </div>
         <div class="cards-row">
-            <a href="#" class="service-card">
+            <a href="service-chatgpt.html" class="service-card">
                 <div class="service-icon chatgpt-bg">
                     <img src="chatgpt.png" alt="ChatGPT">
                 </div>
@@ -153,7 +197,7 @@
                     <span class="service-price">от 1500 ₽</span>
                 </div>
             </a>
-            <a href="#" class="service-card">
+            <a href="service-claude.html" class="service-card">
                 <div class="service-icon claude-bg">
                     <img src="claude.png" alt="Claude">
                 </div>
@@ -162,13 +206,22 @@
                     <span class="service-price">от 1500 ₽</span>
                 </div>
             </a>
-            <a href="#" class="service-card">
-                <div class="service-icon cursor-bg">
-                    <img src="cursor.png" alt="Cursor">
+            <a href="service-midjourney.html" class="service-card">
+                <div class="service-icon">
+                    <img src="midjourney.png" alt="Midjourney">
                 </div>
                 <div class="service-info">
-                    <span class="service-name">Cursor</span>
-                    <span class="service-price">от 1200 ₽</span>
+                    <span class="service-name">Midjourney</span>
+                    <span class="service-price">от 2000 ₽</span>
+                </div>
+            </a>
+            <a href="service-gemini.html" class="service-card">
+                <div class="service-icon">
+                    <img src="gemini.png" alt="Gemini">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Gemini</span>
+                    <span class="service-price">от 1000 ₽</span>
                 </div>
             </a>
         </div>
@@ -218,7 +271,7 @@
             <a href="category-currency.html" class="see-more">ЕЩЁ →</a>
         </div>
         <div class="cards-row">
-            <a href="#" class="service-card">
+            <a href="service-roblox.html" class="service-card">
                 <div class="service-icon roblox-bg">
                     <img src="roblox.png" alt="Roblox">
                 </div>
@@ -227,13 +280,31 @@
                     <span class="service-price">от 300 ₽</span>
                 </div>
             </a>
-            <a href="#" class="service-card">
+            <a href="service-fortnite.html" class="service-card">
                 <div class="service-icon fortnite-bg">
                     <img src="fortnite.png" alt="Fortnite">
                 </div>
                 <div class="service-info">
                     <span class="service-name">Fortnite</span>
                     <span class="service-price">от 500 ₽</span>
+                </div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon">
+                    <img src="genshin.png" alt="Genshin Impact">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Genshin Impact</span>
+                    <span class="service-price">от 500 ₽</span>
+                </div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon">
+                    <img src="valorant.png" alt="Valorant">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Valorant</span>
+                    <span class="service-price">от 400 ₽</span>
                 </div>
             </a>
         </div>
@@ -255,6 +326,24 @@
                     <span class="service-price">от 200 ₽</span>
                 </div>
             </a>
+            <a href="service-netflix.html" class="service-card">
+                <div class="service-icon">
+                    <img src="netflix.png" alt="Netflix">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Netflix</span>
+                    <span class="service-price">от 400 ₽</span>
+                </div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon youtube-bg">
+                    <img src="youtube.png" alt="YouTube Premium">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">YouTube Premium</span>
+                    <span class="service-price">от 300 ₽</span>
+                </div>
+            </a>
         </div>
     </section>
 
@@ -272,6 +361,24 @@
                 <div class="service-info">
                     <span class="service-name">Apple</span>
                     <span class="service-price">от 1000 ₽</span>
+                </div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon">
+                    <img src="googleplay.png" alt="Google Play">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Google Play</span>
+                    <span class="service-price">от 500 ₽</span>
+                </div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon">
+                    <img src="telegram.png" alt="Telegram">
+                </div>
+                <div class="service-info">
+                    <span class="service-name">Telegram Premium</span>
+                    <span class="service-price">от 300 ₽</span>
                 </div>
             </a>
         </div>
@@ -354,53 +461,150 @@
     </section>
 
     <footer>
+        <div class="footer-links">
+            <a href="privacy.html">Политика конфиденциальности</a>
+            <a href="offer.html">Оферта</a>
+            <a href="personal-data.html">Обработка персональных данных</a>
+        </div>
         <p>© 2025 HEY, STORE! Все права защищены</p>
     </footer>
 
     <script>
-        // Infinite scroll for popular grid
-        const popularGrid = document.getElementById('popularGrid');
-        const popularWrapper = document.querySelector('.popular-grid-wrapper');
-        const cards = popularGrid.innerHTML;
-        popularGrid.innerHTML = cards + cards + cards; // Triple the cards for smooth looping
-
-        function slidePopular(direction) {
-            const scrollAmount = 160; // width of one card + gap
-            popularWrapper.scrollBy({
-                left: direction * scrollAmount,
-                behavior: 'smooth'
+        // Smooth Slider
+        const track = document.getElementById('popularTrack');
+        const prevBtn = document.getElementById('sliderPrev');
+        const nextBtn = document.getElementById('sliderNext');
+        const dotsContainer = document.getElementById('sliderDots');
+        const cards = track.querySelectorAll('.popular-card');
+        
+        let currentIndex = 0;
+        let cardsPerView = 5;
+        let cardWidth = 200; // card width + gap
+        let autoSlideInterval;
+        
+        function updateCardsPerView() {
+            const wrapperWidth = track.parentElement.offsetWidth;
+            if (wrapperWidth < 500) {
+                cardsPerView = 2;
+                cardWidth = 160;
+            } else if (wrapperWidth < 700) {
+                cardsPerView = 3;
+                cardWidth = 180;
+            } else if (wrapperWidth < 900) {
+                cardsPerView = 4;
+                cardWidth = 190;
+            } else {
+                cardsPerView = 5;
+                cardWidth = 200;
+            }
+        }
+        
+        function getMaxIndex() {
+            return Math.max(0, cards.length - cardsPerView);
+        }
+        
+        function createDots() {
+            dotsContainer.innerHTML = '';
+            const totalDots = Math.ceil(cards.length / cardsPerView);
+            for (let i = 0; i < totalDots; i++) {
+                const dot = document.createElement('button');
+                dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
+                dot.addEventListener('click', () => goToSlide(i * cardsPerView));
+                dotsContainer.appendChild(dot);
+            }
+        }
+        
+        function updateDots() {
+            const dots = dotsContainer.querySelectorAll('.slider-dot');
+            const activeDotIndex = Math.floor(currentIndex / cardsPerView);
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === activeDotIndex);
             });
         }
-
-        // Reset scroll position for infinite loop effect (seamless)
-        let isResetting = false;
         
-        popularWrapper.addEventListener('scroll', () => {
-            if (isResetting) return;
-            
-            const sectionWidth = popularWrapper.scrollWidth / 3;
-            
-            if (popularWrapper.scrollLeft >= sectionWidth * 2 - 50) {
-                isResetting = true;
-                popularWrapper.style.scrollBehavior = 'auto';
-                popularWrapper.scrollLeft = sectionWidth + (popularWrapper.scrollLeft - sectionWidth * 2);
-                popularWrapper.style.scrollBehavior = 'smooth';
-                setTimeout(() => isResetting = false, 50);
-            } else if (popularWrapper.scrollLeft <= 50) {
-                isResetting = true;
-                popularWrapper.style.scrollBehavior = 'auto';
-                popularWrapper.scrollLeft = sectionWidth + popularWrapper.scrollLeft;
-                popularWrapper.style.scrollBehavior = 'smooth';
-                setTimeout(() => isResetting = false, 50);
+        function goToSlide(index) {
+            currentIndex = Math.max(0, Math.min(index, getMaxIndex()));
+            track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+            updateDots();
+            updateButtons();
+        }
+        
+        function updateButtons() {
+            prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+            nextBtn.style.opacity = currentIndex >= getMaxIndex() ? '0.5' : '1';
+        }
+        
+        function slideNext() {
+            if (currentIndex >= getMaxIndex()) {
+                goToSlide(0); // Loop back to start
+            } else {
+                goToSlide(currentIndex + 1);
             }
+        }
+        
+        function slidePrev() {
+            if (currentIndex <= 0) {
+                goToSlide(getMaxIndex()); // Loop to end
+            } else {
+                goToSlide(currentIndex - 1);
+            }
+        }
+        
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(slideNext, 4000);
+        }
+        
+        function stopAutoSlide() {
+            clearInterval(autoSlideInterval);
+        }
+        
+        // Event listeners
+        nextBtn.addEventListener('click', () => {
+            slideNext();
+            stopAutoSlide();
+            startAutoSlide();
         });
-
-        // Initialize scroll position to middle
-        setTimeout(() => {
-            popularWrapper.style.scrollBehavior = 'auto';
-            popularWrapper.scrollLeft = popularWrapper.scrollWidth / 3;
-            popularWrapper.style.scrollBehavior = 'smooth';
-        }, 100);
+        
+        prevBtn.addEventListener('click', () => {
+            slidePrev();
+            stopAutoSlide();
+            startAutoSlide();
+        });
+        
+        // Pause on hover
+        track.addEventListener('mouseenter', stopAutoSlide);
+        track.addEventListener('mouseleave', startAutoSlide);
+        
+        // Touch/swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        track.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            stopAutoSlide();
+        }, { passive: true });
+        
+        track.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) slideNext();
+                else slidePrev();
+            }
+            startAutoSlide();
+        }, { passive: true });
+        
+        // Initialize
+        window.addEventListener('resize', () => {
+            updateCardsPerView();
+            createDots();
+            goToSlide(Math.min(currentIndex, getMaxIndex()));
+        });
+        
+        updateCardsPerView();
+        createDots();
+        updateButtons();
+        startAutoSlide();
 
         // Theme Toggle
         const themeToggle = document.querySelector('.theme-toggle');
@@ -435,37 +639,6 @@
             const faqItem = button.parentElement;
             faqItem.classList.toggle('active');
         }
-
-        // Popular cards center highlight
-        const popularCards = document.querySelectorAll('.popular-card');
-
-        function updateCenterCard() {
-            const wrapperRect = popularWrapper.getBoundingClientRect();
-            const gridCenter = wrapperRect.left + wrapperRect.width / 2;
-
-            let closestCard = null;
-            let closestDistance = Infinity;
-
-            popularCards.forEach(card => {
-                const cardRect = card.getBoundingClientRect();
-                const cardCenter = cardRect.left + cardRect.width / 2;
-                const distance = Math.abs(gridCenter - cardCenter);
-
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestCard = card;
-                }
-            });
-
-            popularCards.forEach(card => card.classList.remove('center-active'));
-            if (closestCard) {
-                closestCard.classList.add('center-active');
-            }
-        }
-
-        popularWrapper.addEventListener('scroll', updateCenterCard);
-        window.addEventListener('resize', updateCenterCard);
-        setTimeout(updateCenterCard, 200);
     </script>
 </body>
 </html>

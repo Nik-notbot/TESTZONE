@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Игровая валюта - HEY, STORE!</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -28,17 +29,38 @@
     <section class="category-page">
         <a href="index.html" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Назад</a>
         <h2>Игровая валюта</h2>
-        <div class="category-grid">
-            <a href="service-roblox.html" class="category-card"><div class="category-icon"><img src="roblox.png" alt="Roblox"></div><span>Roblox (Robux)</span></a>
-            <a href="service-fortnite.html" class="category-card"><div class="category-icon"><img src="fortnite.png" alt="Fortnite"></div><span>Fortnite (V-Bucks)</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="genshin.png" alt="Genshin Impact"></div><span>Genshin Impact</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="valorant.png" alt="Valorant"></div><span>Valorant (VP)</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="lol.png" alt="League of Legends"></div><span>League of Legends</span></a>
-            <a href="#" class="category-card"><div class="category-icon"><img src="pubg.png" alt="PUBG"></div><span>PUBG (UC)</span></a>
+        <div class="cards-grid">
+            <a href="service-roblox.html" class="service-card">
+                <div class="service-icon roblox-bg"><img src="roblox.png" alt="Roblox"></div>
+                <div class="service-info"><span class="service-name">Roblox (Robux)</span><span class="service-price">от 300 ₽</span></div>
+            </a>
+            <a href="service-fortnite.html" class="service-card">
+                <div class="service-icon fortnite-bg"><img src="fortnite.png" alt="Fortnite"></div>
+                <div class="service-info"><span class="service-name">Fortnite (V-Bucks)</span><span class="service-price">от 500 ₽</span></div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon"><img src="genshin.png" alt="Genshin Impact"></div>
+                <div class="service-info"><span class="service-name">Genshin Impact</span><span class="service-price">от 400 ₽</span></div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon"><img src="valorant.png" alt="Valorant"></div>
+                <div class="service-info"><span class="service-name">Valorant (VP)</span><span class="service-price">от 500 ₽</span></div>
+            </a>
+            <a href="#" class="service-card">
+                <div class="service-icon"><img src="pubg.png" alt="PUBG"></div>
+                <div class="service-info"><span class="service-name">PUBG (UC)</span><span class="service-price">от 300 ₽</span></div>
+            </a>
         </div>
     </section>
 
-    <footer><p>© 2025 HEY, STORE! Все права защищены</p></footer>
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html">Политика конфиденциальности</a>
+            <a href="offer.html">Оферта</a>
+            <a href="personal-data.html">Обработка персональных данных</a>
+        </div>
+        <p>© 2025 HEY, STORE! Все права защищены</p>
+    </footer>
 
     <script>
         const themeToggle = document.querySelector('.theme-toggle');
