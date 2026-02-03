@@ -58,30 +58,19 @@
     </footer>
 
     <script>
-        const BASEROW_API_TOKEN = 'gUcyV8zyChn6xC8VbTF3eGE0sg92o3T5';
-        const BASEROW_TABLE_ID = '821829';
-        const TG_BOT_TOKEN = '8433047336:AAEGAUDR3RWYPtPe2CcGKGHwEMtlB1k9IVU';
-        const TG_CHAT_ID = '7964821965';
-        
-        async function sendTelegramNotification(email, productName, price) {
-            const message = `🛒 *Новый заказ!*\n\n📦 Продукт: ${productName}\n💰 Цена: ${price} ₽\n📧 Email: ${email}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
-            try { await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' }) }); } catch (e) { console.error('Telegram error:', e); }
-        }
-        
         async function handleSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('email').value;
-            const productName = 'Roblox';
-            const price = '100';
             try {
-                await fetch(`https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`, {
+                const response = await fetch('/.netlify/functions/submit-order', {
                     method: 'POST',
-                    headers: { 'Authorization': `Token ${BASEROW_API_TOKEN}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 'Email client': email, 'Product name': productName, 'Price': price })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, productName: 'Roblox', price: '100' })
                 });
-                await sendTelegramNotification(email, productName, price);
-                document.getElementById('email').value = '';
-                alert('✓ Заявка отправлена! Мы свяжемся с вами по email.');
+                if (response.ok) {
+                    document.getElementById('email').value = '';
+                    alert('✓ Заявка отправлена! Мы свяжемся с вами по email.');
+                } else { throw new Error('Ошибка сервера'); }
             } catch (e) { console.error('Error:', e); alert('Ошибка отправки'); }
         }
         const themeToggle = document.querySelector('.theme-toggle');
