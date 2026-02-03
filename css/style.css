@@ -510,7 +510,7 @@ button.theme-toggle:hover {
     justify-content: space-between;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: var(--radius);
-    padding: 32px 40px;
+    padding: 20px 40px;
     gap: 24px;
 }
 
@@ -543,6 +543,24 @@ button.theme-toggle:hover {
 .cta-button:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);
+}
+
+.cta-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.arnold-cta {
+    width: 140px;
+    height: auto;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+}
+
+@media (max-width: 768px) {
+    .arnold-cta {
+        width: 70px;
+    }
 }
 
 /* How To Section */
