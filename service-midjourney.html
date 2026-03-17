@@ -42,11 +42,11 @@
                     <label>Выберите тариф</label>
                     <div class="plan-grid">
                         <label class="plan-option">
-                            <input type="radio" name="plan" value="basic" data-price="800" data-name="Midjourney Basic">
+                            <input type="radio" name="plan" value="basic" data-price="1300" data-name="Midjourney Basic">
                             <div class="plan-card">
                                 <span class="plan-badge go">Basic</span>
                                 <div class="plan-name">Basic</div>
-                                <div class="plan-price">800 ₽<span>/мес</span></div>
+                                <div class="plan-price">1 300 ₽<span>/мес</span></div>
                                 <ul class="plan-features">
                                     <li>3.3 ч. Fast GPU</li>
                                     <li>Генерация картинок</li>
@@ -56,11 +56,11 @@
                             </div>
                         </label>
                         <label class="plan-option">
-                            <input type="radio" name="plan" value="standard" data-price="2400" data-name="Midjourney Standard" checked>
+                            <input type="radio" name="plan" value="standard" data-price="2900" data-name="Midjourney Standard" checked>
                             <div class="plan-card featured">
                                 <span class="plan-badge">Популярный</span>
                                 <div class="plan-name">Standard</div>
-                                <div class="plan-price">2 400 ₽<span>/мес</span></div>
+                                <div class="plan-price">2 900 ₽<span>/мес</span></div>
                                 <ul class="plan-features">
                                     <li>15 ч. Fast GPU</li>
                                     <li>Безлимит Relax</li>
@@ -70,11 +70,11 @@
                             </div>
                         </label>
                         <label class="plan-option">
-                            <input type="radio" name="plan" value="pro" data-price="4800" data-name="Midjourney Pro">
+                            <input type="radio" name="plan" value="pro" data-price="5400" data-name="Midjourney Pro">
                             <div class="plan-card">
                                 <span class="plan-badge pro">Pro</span>
                                 <div class="plan-name">Pro</div>
-                                <div class="plan-price">4 800 ₽<span>/мес</span></div>
+                                <div class="plan-price">5 400 ₽<span>/мес</span></div>
                                 <ul class="plan-features">
                                     <li>30 ч. Fast GPU</li>
                                     <li>Stealth Mode</li>
@@ -108,7 +108,9 @@
         <p>© 2025 HEY, STORE! Все права защищены</p>
     </footer>
 
+    <script src="https://static.wata.pro/widget.js"></script>
     <script>
+        const WATA_PUBLIC_ID = '3a1fa253-344d-3a34-0916-28bc20b8b75a';
         const BASEROW_API_TOKEN = 'gUcyV8zyChn6xC8VbTF3eGE0sg92o3T5';
         const BASEROW_TABLE_ID = '821829';
         const TG_BOT_TOKEN = '8433047336:AAEGAUDR3RWYPtPe2CcGKGHwEMtlB1k9IVU';
@@ -117,42 +119,51 @@
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const formStatus = document.getElementById('formStatus');
-        
+
         function getSelectedPlan() {
             const selected = document.querySelector('input[name="plan"]:checked');
             return { name: selected.dataset.name, price: selected.dataset.price, value: selected.value };
         }
-        
-        async function sendTelegramNotification(email, plan) {
-            const message = `🛒 *Новый заказ!*\n\n📦 Продукт: ${plan.name}\n💰 Цена: ${plan.price} ₽\n📧 Email: ${email}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
-            try { await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' }) }); } catch (e) { console.error('Telegram error:', e); }
-        }
-        
+
         orderForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const email = document.getElementById('email').value;
+            if (!email) return;
             const plan = getSelectedPlan();
+            const orderId = 'HS-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
+
             submitBtn.disabled = true;
-            btnText.textContent = 'Отправка...';
+            btnText.textContent = 'Открытие оплаты...';
             formStatus.textContent = '';
             formStatus.className = 'form-status';
-            
+
             try {
-                const response = await fetch(`https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`, {
+                await fetch(`https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`, {
                     method: 'POST',
                     headers: { 'Authorization': `Token ${BASEROW_API_TOKEN}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 'Email client': email, 'Product name': plan.name, 'Price': plan.price })
                 });
-                if (response.ok) {
-                    await sendTelegramNotification(email, plan);
-                    formStatus.textContent = '✓ Заявка отправлена! Мы свяжемся с вами по email.';
-                    formStatus.className = 'form-status success';
-                    orderForm.reset();
-                } else { throw new Error('Ошибка сервера'); }
-            } catch (error) {
-                formStatus.textContent = '✗ Ошибка отправки. Попробуйте ещё раз.';
-                formStatus.className = 'form-status error';
-            } finally { submitBtn.disabled = false; btnText.textContent = 'Оплатить'; }
+                const message = `🛒 *Новый заказ!*\n\n📦 Продукт: ${plan.name}\n💰 Цена: ${plan.price} ₽\n📧 Email: ${email}\n🆔 Заказ: ${orderId}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
+                await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
+                });
+            } catch (e) { console.error('Tracking error:', e); }
+
+            const widget = new window.PaymentWidget({
+                publicId: WATA_PUBLIC_ID,
+                amount: parseFloat(plan.price),
+                currency: 'RUB',
+                orderId: orderId,
+                description: plan.name,
+                successRedirectUrl: window.location.origin + '/index.html',
+                failRedirectUrl: window.location.href,
+            });
+            widget.open();
+
+            submitBtn.disabled = false;
+            btnText.textContent = 'Оплатить';
         });
 
         const themeToggle = document.querySelector('.theme-toggle');

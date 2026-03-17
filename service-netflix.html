@@ -62,28 +62,29 @@
         const BASEROW_TABLE_ID = '821829';
         const TG_BOT_TOKEN = '8433047336:AAEGAUDR3RWYPtPe2CcGKGHwEMtlB1k9IVU';
         const TG_CHAT_ID = '7964821965';
-        
-        async function sendTelegramNotification(email, productName, price) {
-            const message = `🛒 *Новый заказ!*\n\n📦 Продукт: ${productName}\n💰 Цена: ${price} ₽\n📧 Email: ${email}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
-            try { await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' }) }); } catch (e) { console.error('Telegram error:', e); }
-        }
-        
+
         async function handleSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('email').value;
-            const productName = 'Netflix';
-            const price = '600';
+            if (!email) return;
+            const productName = document.querySelector('h1').textContent;
             try {
                 await fetch(`https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`, {
                     method: 'POST',
                     headers: { 'Authorization': `Token ${BASEROW_API_TOKEN}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 'Email client': email, 'Product name': productName, 'Price': price })
+                    body: JSON.stringify({ 'Email client': email, 'Product name': productName, 'Price': '0' })
                 });
-                await sendTelegramNotification(email, productName, price);
-                document.getElementById('email').value = '';
-                alert('✓ Заявка отправлена! Мы свяжемся с вами по email.');
-            } catch (e) { console.error('Error:', e); alert('Ошибка отправки'); }
+                const message = `📨 *Новая заявка!*\n\n📦 Продукт: ${productName}\n📧 Email: ${email}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
+                await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
+                });
+            } catch (e) { console.error('Error:', e); }
+            event.target.reset();
+            alert('Заявка отправлена! Мы свяжемся с вами по email.');
         }
+
         const themeToggle = document.querySelector('.theme-toggle');
         const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>`;
         const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>`;
