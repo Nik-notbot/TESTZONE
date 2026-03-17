@@ -33,49 +33,26 @@
                 <img src="steam.png" alt="Steam">
             </div>
             <div class="service-page-info">
-                <h1>Пополнение Steam</h1>
-                <p class="service-page-description">Пополнение баланса кошелька Steam в рублях. Средства зачисляются автоматически после оплаты.</p>
-                <div class="service-page-price">от 500 ₽</div>
+                <h1>Steam Wallet Code</h1>
+                <p class="service-page-description">Коды пополнения кошелька Steam (регион Турция). Код придёт на электронную почту после оплаты.</p>
+                <div class="service-page-price" id="startPrice">Загрузка...</div>
             </div>
             <form class="service-form" id="orderForm">
-                <div class="form-group">
-                    <label for="account">Логин аккаунта Steam</label>
-                    <input type="text" id="account" name="account" placeholder="Ваш логин Steam (не Steam ID)" required>
-                </div>
                 <div class="form-group plans-group">
-                    <label>Сумма пополнения</label>
-                    <div class="plan-grid">
-                        <label class="plan-option">
-                            <input type="radio" name="amount" value="500" checked>
-                            <div class="plan-card"><div class="plan-name">500 ₽</div></div>
-                        </label>
-                        <label class="plan-option">
-                            <input type="radio" name="amount" value="1000">
-                            <div class="plan-card featured"><div class="plan-name">1 000 ₽</div></div>
-                        </label>
-                        <label class="plan-option">
-                            <input type="radio" name="amount" value="2000">
-                            <div class="plan-card"><div class="plan-name">2 000 ₽</div></div>
-                        </label>
-                        <label class="plan-option">
-                            <input type="radio" name="amount" value="5000">
-                            <div class="plan-card"><div class="plan-name">5 000 ₽</div></div>
-                        </label>
+                    <label>Выберите номинал</label>
+                    <div class="plan-grid" id="productsGrid">
+                        <div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка товаров...</div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="email">Электронная почта</label>
                     <input type="email" id="email" name="email" placeholder="example@mail.com" required>
                 </div>
-                <div class="price-summary" id="priceSummary" style="text-align:center;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;display:none;">
-                    <span style="color:var(--muted-foreground);">Стоимость: </span>
-                    <strong id="totalPrice" style="font-size:1.2em;"></strong>
-                </div>
                 <button type="submit" class="pay-button" id="submitBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
                     <span id="btnText">Оплатить</span>
                 </button>
-                <p class="form-note">Средства зачисляются на аккаунт Steam автоматически</p>
+                <p class="form-note">Код ваучера придёт на указанную электронную почту</p>
                 <p class="form-status" id="formStatus"></p>
             </form>
         </div>
@@ -93,74 +70,80 @@
     <script src="js/api-config.js"></script>
     <script>
         initThemeToggle();
-
+        const SERVICE_ID = '361';
         const form = document.getElementById('orderForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const formStatus = document.getElementById('formStatus');
-        const priceSummary = document.getElementById('priceSummary');
-        const totalPrice = document.getElementById('totalPrice');
-        let currentPrice = null;
+        const productsGrid = document.getElementById('productsGrid');
+        let vouchers = [];
 
-        async function updatePrice() {
-            const account = document.getElementById('account').value.trim();
-            const amount = document.querySelector('input[name="amount"]:checked')?.value;
-            if (!account || !amount) { priceSummary.style.display = 'none'; return; }
-
-            totalPrice.textContent = 'Загрузка...';
-            priceSummary.style.display = 'block';
+        async function loadProducts() {
             try {
-                const res = await fetch(`${API_URL}/api/steam/price?account=${encodeURIComponent(account)}&amount=${amount}`);
+                const res = await fetch(`${API_URL}/api/vouchers/${SERVICE_ID}`);
                 const data = await res.json();
-                if (data.error) throw new Error(data.error.message || 'Ошибка');
-                currentPrice = data.sellPrice;
-                totalPrice.textContent = formatPrice(currentPrice);
+                if (data.error) throw new Error(data.error.message || 'Ошибка загрузки');
+                vouchers = data.vouchers || [];
+                renderProducts();
             } catch (e) {
-                totalPrice.textContent = 'Ошибка: ' + e.message;
-                currentPrice = null;
+                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--destructive);grid-column:1/-1;">Не удалось загрузить товары. Попробуйте позже.</div>';
             }
         }
 
-        document.querySelectorAll('input[name="amount"]').forEach(r => r.addEventListener('change', updatePrice));
-        document.getElementById('account').addEventListener('blur', updatePrice);
+        function renderProducts() {
+            if (!vouchers.length) {
+                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Нет доступных товаров</div>';
+                return;
+            }
+            const startEl = document.getElementById('startPrice');
+            const minPrice = Math.min(...vouchers.map(v => v.sellPrice));
+            startEl.textContent = 'от ' + formatPrice(minPrice);
+
+            productsGrid.innerHTML = vouchers.map((v, i) => `
+                <label class="plan-option">
+                    <input type="radio" name="voucher" value="${v.id}" data-price="${v.sellPrice}" data-name="${v.name}" ${i === 0 ? 'checked' : ''}>
+                    <div class="plan-card ${i === 0 ? 'featured' : ''}">
+                        <div class="plan-name">${v.name}</div>
+                        <div class="plan-price">${formatPrice(v.sellPrice)}</div>
+                    </div>
+                </label>
+            `).join('');
+        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const account = document.getElementById('account').value.trim();
             const email = document.getElementById('email').value.trim();
-            const netAmount = parseInt(document.querySelector('input[name="amount"]:checked').value);
-
-            if (!account || !email) return;
-            if (!currentPrice) { await updatePrice(); if (!currentPrice) return; }
+            const selected = document.querySelector('input[name="voucher"]:checked');
+            if (!email || !selected) return;
 
             submitBtn.disabled = true;
             btnText.textContent = 'Создание заказа...';
             formStatus.textContent = '';
 
             const orderId = generateOrderId();
+            const productName = selected.dataset.name;
+            const price = parseFloat(selected.dataset.price);
 
             try {
-                await trackOrder(email, `Пополнение Steam ${netAmount}₽`, currentPrice, orderId);
+                await trackOrder(email, `Steam Wallet Code - ${productName}`, price, orderId);
 
-                const res = await fetch(`${API_URL}/api/steam/order`, {
+                const res = await fetch(`${API_URL}/api/vouchers/order`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        account: account,
-                        amount: currentPrice,
-                        netAmount: netAmount,
-                        description: `Пополнение Steam ${netAmount} руб.`,
-                        orderId: orderId,
+                        voucherId: parseInt(selected.value),
+                        amount: price,
+                        count: 1,
+                        orderId,
+                        email,
+                        description: `Steam Wallet Code - ${productName}`,
                         successRedirectUrl: window.location.origin + '/index.html',
                         failRedirectUrl: window.location.href
                     })
                 });
                 const data = await res.json();
-                if (data.error) throw new Error(data.error.message || data.error.details || 'Ошибка создания заказа');
-                if (data.paymentLink) {
-                    window.location.href = data.paymentLink;
-                    return;
-                }
+                if (data.error) throw new Error(data.error.message || data.error.details || 'Ошибка');
+                if (data.paymentLink) { window.location.href = data.paymentLink; return; }
             } catch (e) {
                 formStatus.textContent = 'Ошибка: ' + e.message;
                 formStatus.style.color = 'var(--destructive)';
@@ -169,6 +152,8 @@
             submitBtn.disabled = false;
             btnText.textContent = 'Оплатить';
         });
+
+        loadProducts();
     </script>
 </body>
 </html>

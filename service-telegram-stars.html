@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Stars - HEY, STORE!</title>
+    <title>Telegram Premium - HEY, STORE!</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -30,52 +30,33 @@
         <a href="index.html" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Назад</a>
         <div class="service-page-content">
             <div class="service-page-icon telegram-bg">
-                <img src="telegram.png" alt="Telegram Stars">
+                <img src="telegram.png" alt="Telegram Premium">
             </div>
             <div class="service-page-info">
-                <h1>Telegram Stars</h1>
-                <p class="service-page-description">Покупка звёзд Telegram — внутренняя валюта для оплаты цифровых товаров, подписок и поддержки авторов</p>
-                <div class="service-page-price">от 100 ₽</div>
+                <h1>Telegram Premium</h1>
+                <p class="service-page-description">Подписка Telegram Premium — увеличенные лимиты, эксклюзивные стикеры, без рекламы и множество других преимуществ</p>
+                <div class="service-page-price" id="startPrice">Загрузка...</div>
             </div>
             <form class="service-form" id="orderForm">
                 <div class="form-group">
                     <label for="username">Username в Telegram</label>
-                    <input type="text" id="username" name="username" placeholder="@username (без @)" required>
+                    <input type="text" id="username" name="username" placeholder="@username или ссылка t.me/username" required>
                 </div>
                 <div class="form-group plans-group">
-                    <label>Количество звёзд</label>
-                    <div class="plan-grid">
-                        <label class="plan-option">
-                            <input type="radio" name="stars" value="50">
-                            <div class="plan-card"><div class="plan-name">50 ⭐</div></div>
-                        </label>
-                        <label class="plan-option">
-                            <input type="radio" name="stars" value="100" checked>
-                            <div class="plan-card featured"><div class="plan-name">100 ⭐</div></div>
-                        </label>
-                        <label class="plan-option">
-                            <input type="radio" name="stars" value="500">
-                            <div class="plan-card"><div class="plan-name">500 ⭐</div></div>
-                        </label>
-                        <label class="plan-option">
-                            <input type="radio" name="stars" value="1000">
-                            <div class="plan-card"><div class="plan-name">1 000 ⭐</div></div>
-                        </label>
+                    <label>Выберите срок подписки</label>
+                    <div class="plan-grid" id="productsGrid">
+                        <div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка...</div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="email">Электронная почта</label>
                     <input type="email" id="email" name="email" placeholder="example@mail.com" required>
                 </div>
-                <div class="price-summary" id="priceSummary" style="text-align:center;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;display:none;">
-                    <span style="color:var(--muted-foreground);">Стоимость: </span>
-                    <strong id="totalPrice" style="font-size:1.2em;"></strong>
-                </div>
                 <button type="submit" class="pay-button" id="submitBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
                     <span id="btnText">Оплатить</span>
                 </button>
-                <p class="form-note">Звёзды будут отправлены на указанный аккаунт Telegram</p>
+                <p class="form-note">Подписка активируется автоматически на указанный аккаунт</p>
                 <p class="form-status" id="formStatus"></p>
             </form>
         </div>
@@ -93,63 +74,75 @@
     <script src="js/api-config.js"></script>
     <script>
         initThemeToggle();
-
+        const GAME_ID = '185';
         const form = document.getElementById('orderForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const formStatus = document.getElementById('formStatus');
-        const priceSummary = document.getElementById('priceSummary');
-        const totalPrice = document.getElementById('totalPrice');
-        let pricePerStar = null;
+        const productsGrid = document.getElementById('productsGrid');
+        let products = [];
 
-        async function updatePrice() {
-            const username = document.getElementById('username').value.trim().replace('@', '');
-            const count = parseInt(document.querySelector('input[name="stars"]:checked')?.value || '0');
-            if (!username || !count) { priceSummary.style.display = 'none'; return; }
-
-            totalPrice.textContent = 'Загрузка...';
-            priceSummary.style.display = 'block';
+        async function loadProducts() {
             try {
-                const res = await fetch(`${API_URL}/api/stars/price?username=${encodeURIComponent(username)}`);
+                const res = await fetch(`${API_URL}/api/topup/${GAME_ID}`);
                 const data = await res.json();
-                if (data.error) throw new Error(data.error.message || 'Ошибка');
-                pricePerStar = data.sellPricePerStar;
-                totalPrice.textContent = formatPrice(pricePerStar * count);
+                if (data.error) throw new Error(data.error.message || 'Ошибка загрузки');
+                products = data.products || [];
+                renderProducts();
             } catch (e) {
-                totalPrice.textContent = 'Ошибка: ' + e.message;
-                pricePerStar = null;
+                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--destructive);grid-column:1/-1;">Не удалось загрузить тарифы. Попробуйте позже.</div>';
             }
         }
 
-        document.querySelectorAll('input[name="stars"]').forEach(r => r.addEventListener('change', updatePrice));
-        document.getElementById('username').addEventListener('blur', updatePrice);
+        function renderProducts() {
+            if (!products.length) {
+                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Нет доступных тарифов</div>';
+                return;
+            }
+            const startEl = document.getElementById('startPrice');
+            const minPrice = Math.min(...products.map(p => p.sellPrice));
+            startEl.textContent = 'от ' + formatPrice(minPrice);
+
+            const labels = { 'Premium 3 months': '3 месяца', 'Premium 6 months': '6 месяцев', 'Premium 12 months': '12 месяцев' };
+            productsGrid.innerHTML = products.map((p, i) => `
+                <label class="plan-option">
+                    <input type="radio" name="product" value="${p.id}" data-price="${p.sellPrice}" data-name="${p.name}" ${i === 0 ? 'checked' : ''}>
+                    <div class="plan-card ${i === 0 ? 'featured' : ''}">
+                        <div class="plan-name">${labels[p.name] || p.name}</div>
+                        <div class="plan-price">${formatPrice(p.sellPrice)}</div>
+                    </div>
+                </label>
+            `).join('');
+        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = document.getElementById('username').value.trim().replace('@', '');
+            const username = document.getElementById('username').value.trim().replace(/^@/, '');
             const email = document.getElementById('email').value.trim();
-            const count = parseInt(document.querySelector('input[name="stars"]:checked').value);
+            const selected = document.querySelector('input[name="product"]:checked');
+            if (!username || !email || !selected) return;
 
-            if (!username || !email || !count) return;
-            if (!pricePerStar) { await updatePrice(); if (!pricePerStar) return; }
-
-            const amount = Math.ceil(pricePerStar * count);
             submitBtn.disabled = true;
             btnText.textContent = 'Создание заказа...';
             formStatus.textContent = '';
 
             const orderId = generateOrderId();
+            const productName = selected.dataset.name;
+            const price = parseFloat(selected.dataset.price);
 
             try {
-                await trackOrder(email, `Telegram Stars x${count}`, amount, orderId);
+                await trackOrder(email, `Telegram Premium - ${productName}`, price, orderId);
 
-                const res = await fetch(`${API_URL}/api/stars/order`, {
+                const res = await fetch(`${API_URL}/api/topup/order`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        username, count, amount,
-                        description: `Покупка ${count} звёзд Telegram`,
+                        productId: parseInt(selected.value),
+                        amount: price,
+                        input1: username,
                         orderId,
+                        email,
+                        description: `Telegram Premium - ${productName}`,
                         successRedirectUrl: window.location.origin + '/index.html',
                         failRedirectUrl: window.location.href
                     })
@@ -165,6 +158,8 @@
             submitBtn.disabled = false;
             btnText.textContent = 'Оплатить';
         });
+
+        loadProducts();
     </script>
 </body>
 </html>
