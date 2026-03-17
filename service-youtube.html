@@ -37,23 +37,16 @@
                 <p class="service-page-description">Подписка YouTube Premium — просмотр без рекламы, фоновое воспроизведение и YouTube Music</p>
                 <div class="service-page-price">от 300 ₽</div>
             </div>
-            <form class="service-form" id="orderForm">
-                <div class="form-group plans-group">
-                    <label>Выберите номинал</label>
-                    <div class="plan-grid" id="productsGrid">
-                        <div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка товаров...</div>
-                    </div>
-                </div>
+            <form class="service-form" onsubmit="handleSubmit(event)">
                 <div class="form-group">
                     <label for="email">Электронная почта</label>
                     <input type="email" id="email" name="email" placeholder="example@mail.com" required>
                 </div>
-                <button type="submit" class="pay-button" id="submitBtn">
+                <button type="submit" class="pay-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-                    <span id="btnText">Оплатить</span>
+                    Оставить заявку
                 </button>
-                <p class="form-note">Код ваучера придёт на указанную электронную почту</p>
-                <p class="form-status" id="formStatus"></p>
+                <p class="form-note">После оформления заявки мы свяжемся с вами по email</p>
             </form>
         </div>
     </section>
@@ -67,89 +60,40 @@
         <p>© 2025 HEY, STORE! Все права защищены</p>
     </footer>
 
-    <script src="js/api-config.js"></script>
     <script>
-        initThemeToggle();
-        const SERVICE_ID = '160';
-        const form = document.getElementById('orderForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-        const formStatus = document.getElementById('formStatus');
-        const productsGrid = document.getElementById('productsGrid');
-        let vouchers = [];
+        const BASEROW_API_TOKEN = 'gUcyV8zyChn6xC8VbTF3eGE0sg92o3T5';
+        const BASEROW_TABLE_ID = '821829';
+        const TG_BOT_TOKEN = '8433047336:AAEGAUDR3RWYPtPe2CcGKGHwEMtlB1k9IVU';
+        const TG_CHAT_ID = '7964821965';
 
-        async function loadProducts() {
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            if (!email) return;
+            const productName = document.querySelector('h1').textContent;
             try {
-                const res = await fetch(`${API_URL}/api/vouchers/${SERVICE_ID}`);
-                const data = await res.json();
-                if (data.error) throw new Error(data.error.message || 'Ошибка загрузки');
-                vouchers = data.vouchers || [];
-                renderProducts();
-            } catch (e) {
-                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--destructive);grid-column:1/-1;">Не удалось загрузить товары. Попробуйте позже.</div>';
-            }
-        }
-
-        function renderProducts() {
-            if (!vouchers.length) {
-                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Нет доступных товаров</div>';
-                return;
-            }
-            productsGrid.innerHTML = vouchers.map((v, i) => `
-                <label class="plan-option">
-                    <input type="radio" name="voucher" value="${v.id}" data-price="${v.sellPrice}" data-name="${v.name}" ${i === 0 ? 'checked' : ''}>
-                    <div class="plan-card ${i === 0 ? 'featured' : ''}">
-                        <div class="plan-name">${v.name}</div>
-                        <div class="plan-price">${formatPrice(v.sellPrice)}</div>
-                    </div>
-                </label>
-            `).join('');
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const selected = document.querySelector('input[name="voucher"]:checked');
-            if (!email || !selected) return;
-
-            submitBtn.disabled = true;
-            btnText.textContent = 'Создание заказа...';
-            formStatus.textContent = '';
-
-            const orderId = generateOrderId();
-            const productName = selected.dataset.name;
-            const price = parseFloat(selected.dataset.price);
-
-            try {
-                await trackOrder(email, `${document.querySelector('h1').textContent} - ${productName}`, price, orderId);
-
-                const res = await fetch(`${API_URL}/api/vouchers/order`, {
+                await fetch(`https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Token ${BASEROW_API_TOKEN}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 'Email client': email, 'Product name': productName, 'Price': '0' })
+                });
+                const message = `📨 *Новая заявка!*\n\n📦 Продукт: ${productName}\n📧 Email: ${email}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
+                await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        voucherId: parseInt(selected.value),
-                        amount: price,
-                        count: 1,
-                        orderId,
-                        email,
-                        description: `${document.querySelector('h1').textContent} - ${productName}`,
-                        successRedirectUrl: window.location.origin + '/index.html',
-                        failRedirectUrl: window.location.href
-                    })
+                    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
                 });
-                const data = await res.json();
-                if (data.error) throw new Error(data.error.message || data.error.details || 'Ошибка');
-                if (data.paymentLink) { window.location.href = data.paymentLink; return; }
-            } catch (e) {
-                formStatus.textContent = 'Ошибка: ' + e.message;
-                formStatus.style.color = 'var(--destructive)';
-            }
+            } catch (e) { console.error('Error:', e); }
+            event.target.reset();
+            alert('Заявка отправлена! Мы свяжемся с вами по email.');
+        }
 
-            submitBtn.disabled = false;
-            btnText.textContent = 'Оплатить';
-        });
-
-        loadProducts();
+        const themeToggle = document.querySelector('.theme-toggle');
+        const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>`;
+        const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>`;
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeToggle.innerHTML = sunIcon; } else { themeToggle.innerHTML = moonIcon; }
+        themeToggle.addEventListener('click', () => { const currentTheme = document.documentElement.getAttribute('data-theme'); if (currentTheme === 'dark') { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeToggle.innerHTML = moonIcon; } else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeToggle.innerHTML = sunIcon; } });
     </script>
 </body>
 </html>

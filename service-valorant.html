@@ -38,12 +38,8 @@
                 <div class="service-page-price">от 400 ₽</div>
             </div>
             <form class="service-form" id="orderForm">
-                <div class="form-group">
-                    <label for="gameField">Riot ID</label>
-                    <input type="text" id="gameField" name="gameField" placeholder="Ваш Riot ID (name#tag)" required>
-                </div>
                 <div class="form-group plans-group">
-                    <label>Выберите пополнение</label>
+                    <label>Выберите номинал</label>
                     <div class="plan-grid" id="productsGrid">
                         <div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка товаров...</div>
                     </div>
@@ -56,7 +52,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
                     <span id="btnText">Оплатить</span>
                 </button>
-                <p class="form-note">Пополнение происходит автоматически после оплаты</p>
+                <p class="form-note">Код ваучера придёт на указанную электронную почту</p>
                 <p class="form-status" id="formStatus"></p>
             </form>
         </div>
@@ -74,41 +70,37 @@
     <script src="js/api-config.js"></script>
     <script>
         initThemeToggle();
-        const GAME_ID = '11';
+        const SERVICE_ID = '333';
         const form = document.getElementById('orderForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const formStatus = document.getElementById('formStatus');
         const productsGrid = document.getElementById('productsGrid');
-        let products = [];
-        let fieldName = 'Input1';
+        let vouchers = [];
 
         async function loadProducts() {
             try {
-                const res = await fetch(`${API_URL}/api/topup/${GAME_ID}`);
+                const res = await fetch(`${API_URL}/api/vouchers/${SERVICE_ID}`);
                 const data = await res.json();
                 if (data.error) throw new Error(data.error.message || 'Ошибка загрузки');
-                products = data.products || [];
-                if (data.details && data.details.fields && data.details.fields[0]) {
-                    fieldName = Object.keys(data.details.fields[0])[0];
-                }
+                vouchers = data.vouchers || [];
                 renderProducts();
             } catch (e) {
-                productsGrid.innerHTML = `<div style="text-align:center;padding:20px;color:var(--destructive);grid-column:1/-1;">Не удалось загрузить товары. Попробуйте позже.</div>`;
+                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--destructive);grid-column:1/-1;">Не удалось загрузить товары. Попробуйте позже.</div>';
             }
         }
 
         function renderProducts() {
-            if (!products.length) {
+            if (!vouchers.length) {
                 productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Нет доступных товаров</div>';
                 return;
             }
-            productsGrid.innerHTML = products.map((p, i) => `
+            productsGrid.innerHTML = vouchers.map((v, i) => `
                 <label class="plan-option">
-                    <input type="radio" name="product" value="${p.id}" data-price="${p.sellPrice}" data-name="${p.name}" ${i === 0 ? 'checked' : ''}>
+                    <input type="radio" name="voucher" value="${v.id}" data-price="${v.sellPrice}" data-name="${v.name}" ${i === 0 ? 'checked' : ''}>
                     <div class="plan-card ${i === 0 ? 'featured' : ''}">
-                        <div class="plan-name">${p.name}</div>
-                        <div class="plan-price">${formatPrice(p.sellPrice)}</div>
+                        <div class="plan-name">${v.name}</div>
+                        <div class="plan-price">${formatPrice(v.sellPrice)}</div>
                     </div>
                 </label>
             `).join('');
@@ -116,10 +108,9 @@
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const gameFieldValue = document.getElementById('gameField').value.trim();
             const email = document.getElementById('email').value.trim();
-            const selected = document.querySelector('input[name="product"]:checked');
-            if (!gameFieldValue || !email || !selected) return;
+            const selected = document.querySelector('input[name="voucher"]:checked');
+            if (!email || !selected) return;
 
             submitBtn.disabled = true;
             btnText.textContent = 'Создание заказа...';
@@ -130,21 +121,18 @@
             const price = parseFloat(selected.dataset.price);
 
             try {
-                await trackOrder(email, `${document.querySelector('h1').textContent} - ${productName}`, price, orderId);
+                await trackOrder(email, `Valorant - ${productName}`, price, orderId);
 
-                const fields = {};
-                fields[fieldName] = gameFieldValue;
-
-                const res = await fetch(`${API_URL}/api/topup/order`, {
+                const res = await fetch(`${API_URL}/api/vouchers/order`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        topupId: selected.value,
+                        voucherId: parseInt(selected.value),
                         amount: price,
+                        count: 1,
                         orderId,
-                        fields,
                         email,
-                        description: `${document.querySelector('h1').textContent} - ${productName}`,
+                        description: `Valorant - ${productName}`,
                         successRedirectUrl: window.location.origin + '/index.html',
                         failRedirectUrl: window.location.href
                     })
