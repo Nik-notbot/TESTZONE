@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: heystore-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: WATA_DG_TOKEN
+        sync: false
+      - key: MARGIN
+        value: "0.05"
+      - key: COMMISSION
+        value: "0.085"
+      - key: ALLOWED_ORIGINS
+        value: "*"
