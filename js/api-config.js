@@ -1,6 +1,6 @@
 // URL бэкенд-сервера WATA Digital Goods
 // Поменяйте на адрес вашего развёрнутого сервера
-const API_URL = 'https://api.heystore.net';
+const API_URL = 'https://heystore-api.onrender.com';
 
 const BASEROW_API_TOKEN = 'gUcyV8zyChn6xC8VbTF3eGE0sg92o3T5';
 const BASEROW_TABLE_ID = '821829';
