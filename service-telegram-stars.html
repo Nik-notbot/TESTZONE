@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Premium - HEY, STORE!</title>
+    <title>Telegram Stars - HEY, STORE!</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -30,22 +30,37 @@
         <a href="index.html" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Назад</a>
         <div class="service-page-content">
             <div class="service-page-icon telegram-bg">
-                <img src="telegram.png" alt="Telegram Premium">
+                <img src="telegram.png" alt="Telegram Stars">
             </div>
             <div class="service-page-info">
-                <h1>Telegram Premium</h1>
-                <p class="service-page-description">Подписка Telegram Premium — увеличенные лимиты, эксклюзивные стикеры, без рекламы и множество других преимуществ</p>
-                <div class="service-page-price" id="startPrice">Загрузка...</div>
+                <h1>Telegram Stars</h1>
+                <p class="service-page-description">Покупка звёзд Telegram — внутренняя валюта для оплаты цифровых товаров, подписок и поддержки авторов</p>
+                <div class="service-page-price">от 100 ₽</div>
             </div>
-            <form class="service-form" id="orderForm">
+            <form class="service-form" id="orderForm" onsubmit="handleSubmit(event)">
                 <div class="form-group">
                     <label for="username">Username в Telegram</label>
-                    <input type="text" id="username" name="username" placeholder="@username или ссылка t.me/username" required>
+                    <input type="text" id="username" name="username" placeholder="@username (без @)" required>
                 </div>
                 <div class="form-group plans-group">
-                    <label>Выберите срок подписки</label>
-                    <div class="plan-grid" id="productsGrid">
-                        <div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка...</div>
+                    <label>Количество звёзд</label>
+                    <div class="plan-grid">
+                        <label class="plan-option">
+                            <input type="radio" name="stars" value="50" data-price="100">
+                            <div class="plan-card"><div class="plan-name">50 ★</div><div class="plan-price">100 ₽</div></div>
+                        </label>
+                        <label class="plan-option">
+                            <input type="radio" name="stars" value="100" data-price="190" checked>
+                            <div class="plan-card featured"><div class="plan-name">100 ★</div><div class="plan-price">190 ₽</div></div>
+                        </label>
+                        <label class="plan-option">
+                            <input type="radio" name="stars" value="500" data-price="900">
+                            <div class="plan-card"><div class="plan-name">500 ★</div><div class="plan-price">900 ₽</div></div>
+                        </label>
+                        <label class="plan-option">
+                            <input type="radio" name="stars" value="1000" data-price="1700">
+                            <div class="plan-card"><div class="plan-name">1 000 ★</div><div class="plan-price">1 700 ₽</div></div>
+                        </label>
                     </div>
                 </div>
                 <div class="form-group">
@@ -54,9 +69,9 @@
                 </div>
                 <button type="submit" class="pay-button" id="submitBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-                    <span id="btnText">Оплатить</span>
+                    <span id="btnText">Оставить заявку</span>
                 </button>
-                <p class="form-note">Подписка активируется автоматически на указанный аккаунт</p>
+                <p class="form-note">Мы свяжемся с вами по email для подтверждения и оплаты</p>
                 <p class="form-status" id="formStatus"></p>
             </form>
         </div>
@@ -74,92 +89,39 @@
     <script src="js/api-config.js"></script>
     <script>
         initThemeToggle();
-        const GAME_ID = '185';
-        const form = document.getElementById('orderForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-        const formStatus = document.getElementById('formStatus');
-        const productsGrid = document.getElementById('productsGrid');
-        let products = [];
 
-        async function loadProducts() {
-            try {
-                const res = await fetch(`${API_URL}/api/topup/${GAME_ID}`);
-                const data = await res.json();
-                if (data.error) throw new Error(data.error.message || 'Ошибка загрузки');
-                products = data.products || [];
-                renderProducts();
-            } catch (e) {
-                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--destructive);grid-column:1/-1;">Не удалось загрузить тарифы. Попробуйте позже.</div>';
-            }
-        }
-
-        function renderProducts() {
-            if (!products.length) {
-                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Нет доступных тарифов</div>';
-                return;
-            }
-            const startEl = document.getElementById('startPrice');
-            const minPrice = Math.min(...products.map(p => p.sellPrice));
-            startEl.textContent = 'от ' + formatPrice(minPrice);
-
-            const labels = { 'Premium 3 months': '3 месяца', 'Premium 6 months': '6 месяцев', 'Premium 12 months': '12 месяцев' };
-            productsGrid.innerHTML = products.map((p, i) => `
-                <label class="plan-option">
-                    <input type="radio" name="product" value="${p.id}" data-price="${p.sellPrice}" data-name="${p.name}" ${i === 0 ? 'checked' : ''}>
-                    <div class="plan-card ${i === 0 ? 'featured' : ''}">
-                        <div class="plan-name">${labels[p.name] || p.name}</div>
-                        <div class="plan-price">${formatPrice(p.sellPrice)}</div>
-                    </div>
-                </label>
-            `).join('');
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value.trim().replace(/^@/, '');
+        async function handleSubmit(event) {
+            event.preventDefault();
             const email = document.getElementById('email').value.trim();
-            const selected = document.querySelector('input[name="product"]:checked');
-            if (!username || !email || !selected) return;
+            const username = document.getElementById('username').value.trim().replace(/^@/, '');
+            const selected = document.querySelector('input[name="stars"]:checked');
+            if (!email || !username || !selected) return;
+
+            const stars = selected.value;
+            const price = selected.dataset.price;
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const formStatus = document.getElementById('formStatus');
 
             submitBtn.disabled = true;
-            btnText.textContent = 'Создание заказа...';
+            btnText.textContent = 'Отправка...';
             formStatus.textContent = '';
 
             const orderId = generateOrderId();
-            const productName = selected.dataset.name;
-            const price = parseFloat(selected.dataset.price);
 
             try {
-                await trackOrder(email, `Telegram Premium - ${productName}`, price, orderId);
-
-                const res = await fetch(`${API_URL}/api/topup/order`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        productId: parseInt(selected.value),
-                        amount: price,
-                        input1: username,
-                        orderId,
-                        email,
-                        description: `Telegram Premium - ${productName}`,
-                        successRedirectUrl: window.location.origin + '/index.html',
-                        failRedirectUrl: window.location.href
-                    })
-                });
-                const data = await res.json();
-                if (data.error) throw new Error(data.error.message || data.error.details || 'Ошибка');
-                if (data.paymentLink) { window.location.href = data.paymentLink; return; }
+                await trackOrder(email, `Telegram Stars x${stars} (@${username})`, price, orderId);
+                formStatus.textContent = 'Заявка отправлена! Мы свяжемся с вами по email.';
+                formStatus.style.color = 'var(--primary)';
+                event.target.reset();
             } catch (e) {
                 formStatus.textContent = 'Ошибка: ' + e.message;
                 formStatus.style.color = 'var(--destructive)';
             }
 
             submitBtn.disabled = false;
-            btnText.textContent = 'Оплатить';
-        });
-
-        loadProducts();
+            btnText.textContent = 'Оставить заявку';
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Premium - HEY, STORE!</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <div class="logo-section">
+                <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                    <img src="logo.png" alt="HEY, STORE!" class="logo-image">
+                    <div><h1>HEY, STORE!</h1><p>Сервисы без санкций</p></div>
+                </a>
+            </div>
+            <nav class="nav-left">
+                <a href="https://t.me/hey_store_official" target="_blank" class="nav-button"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg><span>Канал</span></a>
+                <a href="https://t.me/hey_store_bot" target="_blank" class="nav-button"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg><span>Поддержка</span></a>
+                <a href="https://blog.heystore.net/" target="_blank" class="nav-button"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>Блог</span></a>
+            </nav>
+        </div>
+        <div class="header-right"><button class="theme-toggle nav-button"></button></div>
+    </header>
+
+    <section class="service-page">
+        <a href="index.html" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Назад</a>
+        <div class="service-page-content">
+            <div class="service-page-icon telegram-bg">
+                <img src="telegram.png" alt="Telegram Premium">
+            </div>
+            <div class="service-page-info">
+                <h1>Telegram Premium</h1>
+                <p class="service-page-description">Подписка Telegram Premium — увеличенные лимиты, эксклюзивные стикеры, без рекламы и множество других преимуществ</p>
+                <div class="service-page-price" id="startPrice">Загрузка...</div>
+            </div>
+            <form class="service-form" id="orderForm">
+                <div class="form-group">
+                    <label for="username">Username в Telegram</label>
+                    <input type="text" id="username" name="username" placeholder="@username или ссылка t.me/username" required>
+                </div>
+                <div class="form-group plans-group">
+                    <label>Выберите срок подписки</label>
+                    <div class="plan-grid" id="productsGrid">
+                        <div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка...</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Электронная почта</label>
+                    <input type="email" id="email" name="email" placeholder="example@mail.com" required>
+                </div>
+                <button type="submit" class="pay-button" id="submitBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                    <span id="btnText">Оплатить</span>
+                </button>
+                <p class="form-note">Подписка активируется автоматически на указанный аккаунт</p>
+                <p class="form-status" id="formStatus"></p>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html">Политика конфиденциальности</a>
+            <a href="offer.html">Оферта</a>
+            <a href="personal-data.html">Обработка персональных данных</a>
+        </div>
+        <p>© 2025 HEY, STORE! Все права защищены</p>
+    </footer>
+
+    <script src="js/api-config.js"></script>
+    <script>
+        initThemeToggle();
+        const GAME_ID = '185';
+        const form = document.getElementById('orderForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const formStatus = document.getElementById('formStatus');
+        const productsGrid = document.getElementById('productsGrid');
+        let products = [];
+
+        async function loadProducts() {
+            try {
+                const res = await fetch(`${API_URL}/api/topup/${GAME_ID}`);
+                const data = await res.json();
+                if (data.error) throw new Error(data.error.message || 'Ошибка загрузки');
+                products = data.products || [];
+                renderProducts();
+            } catch (e) {
+                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--destructive);grid-column:1/-1;">Не удалось загрузить тарифы. Попробуйте позже.</div>';
+            }
+        }
+
+        function renderProducts() {
+            if (!products.length) {
+                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Нет доступных тарифов</div>';
+                return;
+            }
+            const startEl = document.getElementById('startPrice');
+            const minPrice = Math.min(...products.map(p => p.sellPrice));
+            startEl.textContent = 'от ' + formatPrice(minPrice);
+
+            const labels = { 'Premium 3 months': '3 месяца', 'Premium 6 months': '6 месяцев', 'Premium 12 months': '12 месяцев' };
+            productsGrid.innerHTML = products.map((p, i) => `
+                <label class="plan-option">
+                    <input type="radio" name="product" value="${p.id}" data-price="${p.sellPrice}" data-name="${p.name}" ${i === 0 ? 'checked' : ''}>
+                    <div class="plan-card ${i === 0 ? 'featured' : ''}">
+                        <div class="plan-name">${labels[p.name] || p.name}</div>
+                        <div class="plan-price">${formatPrice(p.sellPrice)}</div>
+                    </div>
+                </label>
+            `).join('');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim().replace(/^@/, '');
+            const email = document.getElementById('email').value.trim();
+            const selected = document.querySelector('input[name="product"]:checked');
+            if (!username || !email || !selected) return;
+
+            submitBtn.disabled = true;
+            btnText.textContent = 'Создание заказа...';
+            formStatus.textContent = '';
+
+            const orderId = generateOrderId();
+            const productName = selected.dataset.name;
+            const price = parseFloat(selected.dataset.price);
+
+            try {
+                await trackOrder(email, `Telegram Premium - ${productName}`, price, orderId);
+
+                const res = await fetch(`${API_URL}/api/topup/order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        productId: parseInt(selected.value),
+                        amount: price,
+                        input1: username,
+                        orderId,
+                        email,
+                        description: `Telegram Premium - ${productName}`,
+                        successRedirectUrl: window.location.origin + '/index.html',
+                        failRedirectUrl: window.location.href
+                    })
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error.message || data.error.details || 'Ошибка');
+                if (data.paymentLink) { window.location.href = data.paymentLink; return; }
+            } catch (e) {
+                formStatus.textContent = 'Ошибка: ' + e.message;
+                formStatus.style.color = 'var(--destructive)';
+            }
+
+            submitBtn.disabled = false;
+            btnText.textContent = 'Оплатить';
+        });
+
+        loadProducts();
+    </script>
+</body>
+</html>
