@@ -139,7 +139,7 @@
                         orderId,
                         email,
                         description: `${document.querySelector('h1').textContent} - ${productName}`,
-                        successRedirectUrl: window.location.origin + '/index.html',
+                        successRedirectUrl: window.location.origin + '/success.html?orderId=' + encodeURIComponent(orderId) + '&type=vouchers',
                         failRedirectUrl: window.location.href
                     })
                 });

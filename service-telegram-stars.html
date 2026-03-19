@@ -163,7 +163,7 @@
                         username, count, amount,
                         description: `Покупка ${count} звёзд Telegram`,
                         orderId,
-                        successRedirectUrl: window.location.origin + '/index.html',
+                        successRedirectUrl: window.location.origin + '/success.html?orderId=' + encodeURIComponent(orderId) + '&type=stars',
                         failRedirectUrl: window.location.href
                     })
                 });

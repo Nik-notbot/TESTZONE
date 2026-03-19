@@ -176,7 +176,7 @@
                         netAmount,
                         description: `Пополнение Steam ${netAmount} руб.`,
                         orderId,
-                        successRedirectUrl: window.location.origin + '/index.html',
+                        successRedirectUrl: window.location.origin + '/success.html?orderId=' + encodeURIComponent(orderId) + '&type=steam',
                         failRedirectUrl: window.location.href
                     })
                 });
