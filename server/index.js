@@ -237,6 +237,8 @@ const PRICE_SOURCES = {
         { key: 'playstation', id: '132' },
         { key: 'valorant', id: '333' },
         { key: 'netflix', id: '96' },
+        { key: 'roblox', id: '145' },
+        { key: 'fortnite', id: '280' },
     ]
 };
 

@@ -47,6 +47,8 @@ async function loadDynamicPrices() {
             'service-playstation.html': 'playstation',
             'service-valorant.html': 'valorant',
             'service-netflix.html': 'netflix',
+            'service-roblox.html': 'roblox',
+            'service-fortnite.html': 'fortnite',
         };
         document.querySelectorAll('a.service-card, a.popular-card').forEach(card => {
             const href = card.getAttribute('href');
