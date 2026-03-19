@@ -171,6 +171,77 @@ app.get('/api/vouchers/order/:id', async (req, res) => {
     } catch (e) { handleError(res, e); }
 });
 
+// ====================== PRICES (кеш минимальных цен) ======================
+
+let pricesCache = null;
+let pricesCacheTime = 0;
+const CACHE_TTL = 5 * 60 * 1000;
+
+const PRICE_SOURCES = {
+    topup: [
+        { key: 'telegram-premium', id: '185' },
+        { key: 'genshin', id: '1' },
+        { key: 'pubg', id: '9' },
+    ],
+    vouchers: [
+        { key: 'spotify', id: '352' },
+        { key: 'apple', id: '68' },
+        { key: 'googleplay', id: '88' },
+        { key: 'xbox', id: '390' },
+        { key: 'playstation', id: '132' },
+        { key: 'valorant', id: '333' },
+    ]
+};
+
+async function fetchMinPrices() {
+    const now = Date.now();
+    if (pricesCache && (now - pricesCacheTime) < CACHE_TTL) return pricesCache;
+
+    const prices = {};
+
+    const topupPromises = PRICE_SOURCES.topup.map(async ({ key, id }) => {
+        try {
+            const data = await wata('GET', `/v3/topup/${id}`, null, TOKEN_MAIN);
+            const available = (data.products || []).filter(p => p.isAvailable);
+            if (available.length) {
+                prices[key] = Math.min(...available.map(p => calcSellPrice(p.price, p.minPrice)));
+            }
+        } catch (e) { /* skip */ }
+    });
+
+    const voucherPromises = PRICE_SOURCES.vouchers.map(async ({ key, id }) => {
+        try {
+            const data = await wata('GET', `/v3/vouchers/${id}`, null, TOKEN_MAIN);
+            const available = (data.vouchers || []).filter(v => v.isAvailable && v.stock > 0);
+            if (available.length) {
+                prices[key] = Math.min(...available.map(v => calcSellPrice(v.price, v.minPrice)));
+            }
+        } catch (e) { /* skip */ }
+    });
+
+    try {
+        const starsData = await wata('GET', '/stars/price?Username=BotFather', null, TOKEN_STARS);
+        const starPrice = starsData.starPrice / (1 - COMMISSION - MARGIN);
+        const perStar = Math.max(starsData.minPrice, Math.ceil(starPrice * 100) / 100);
+        prices['telegram-stars'] = Math.ceil(perStar * 50);
+    } catch (e) {
+        prices['telegram-stars'] = 76;
+    }
+
+    await Promise.all([...topupPromises, ...voucherPromises]);
+
+    pricesCache = prices;
+    pricesCacheTime = now;
+    return prices;
+}
+
+app.get('/api/prices', async (req, res) => {
+    try {
+        const prices = await fetchMinPrices();
+        res.json(prices);
+    } catch (e) { handleError(res, e); }
+});
+
 // ====================== HEALTH ======================
 
 app.get('/api/health', (req, res) => {
