@@ -101,11 +101,20 @@
         const priceSummary = document.getElementById('priceSummary');
         const totalPrice = document.getElementById('totalPrice');
         let pricePerStar = null;
+        let cachedUsername = null;
 
-        async function updatePrice() {
-            const username = document.getElementById('username').value.trim().replace(/^@/, '');
+        function showTotal() {
             const count = parseInt(document.querySelector('input[name="stars"]:checked')?.value || '0');
-            if (!username || !count) { priceSummary.style.display = 'none'; return; }
+            if (!pricePerStar || !count) return;
+            const total = Math.ceil(pricePerStar * count);
+            totalPrice.textContent = total.toLocaleString('ru-RU') + ' ₽';
+            priceSummary.style.display = 'block';
+        }
+
+        async function fetchPrice() {
+            const username = document.getElementById('username').value.trim().replace(/^@/, '');
+            if (!username) { priceSummary.style.display = 'none'; return; }
+            if (username === cachedUsername && pricePerStar) { showTotal(); return; }
 
             totalPrice.textContent = 'Загрузка...';
             priceSummary.style.display = 'block';
@@ -117,16 +126,16 @@
                     throw new Error(msg);
                 }
                 pricePerStar = data.sellPricePerStar;
-                const total = Math.ceil(pricePerStar * count);
-                totalPrice.textContent = total.toLocaleString('ru-RU') + ' ₽';
+                cachedUsername = username;
+                showTotal();
             } catch (e) {
                 totalPrice.textContent = 'Ошибка: ' + e.message;
                 pricePerStar = null;
             }
         }
 
-        document.querySelectorAll('input[name="stars"]').forEach(r => r.addEventListener('change', updatePrice));
-        document.getElementById('username').addEventListener('blur', updatePrice);
+        document.querySelectorAll('input[name="stars"]').forEach(r => r.addEventListener('change', showTotal));
+        document.getElementById('username').addEventListener('blur', fetchPrice);
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -135,7 +144,7 @@
             const count = parseInt(document.querySelector('input[name="stars"]:checked').value);
 
             if (!username || !email || !count) return;
-            if (!pricePerStar) { await updatePrice(); if (!pricePerStar) return; }
+            if (!pricePerStar) { await fetchPrice(); if (!pricePerStar) return; }
 
             const amount = Math.ceil(pricePerStar * count);
             submitBtn.disabled = true;
