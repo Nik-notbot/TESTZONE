@@ -55,6 +55,18 @@
     color: #1a1a2e;
 }
 
+[data-theme="dark"] .popular-card {
+    color: #1a1a2e;
+}
+
+[data-theme="dark"] .popular-name {
+    color: #1a1a2e;
+}
+
+[data-theme="dark"] .popular-price {
+    color: #6b7280;
+}
+
 /* Reset */
 * {
     margin: 0;
