@@ -117,7 +117,8 @@
                     throw new Error(msg);
                 }
                 pricePerStar = data.sellPricePerStar;
-                totalPrice.textContent = formatPrice(pricePerStar * count);
+                const total = Math.ceil(pricePerStar * count);
+                totalPrice.textContent = total.toLocaleString('ru-RU') + ' ₽';
             } catch (e) {
                 totalPrice.textContent = 'Ошибка: ' + e.message;
                 pricePerStar = null;

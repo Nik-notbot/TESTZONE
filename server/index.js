@@ -81,7 +81,9 @@ app.get('/api/stars/price', async (req, res) => {
         const { username } = req.query;
         if (!username) return res.status(400).json({ error: { message: 'username required' } });
         const data = await wata('GET', `/stars/price?Username=${encodeURIComponent(username)}`, null, TOKEN_STARS);
-        res.json({ ...data, sellPricePerStar: calcSellPrice(data.starPrice, data.minPrice) });
+        const priceForMargin = data.starPrice / (1 - COMMISSION - MARGIN);
+        const sellPricePerStar = Math.max(data.minPrice, Math.ceil(priceForMargin * 100) / 100);
+        res.json({ ...data, sellPricePerStar });
     } catch (e) { handleError(res, e); }
 });
 
