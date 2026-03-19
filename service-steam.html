@@ -34,46 +34,35 @@
             </div>
             <div class="service-page-info">
                 <h1>Пополнение Steam</h1>
-                <p class="service-page-description">Пополнение баланса кошелька Steam в рублях. Средства зачисляются автоматически после оплаты.</p>
-                <div class="service-page-price">от 500 ₽</div>
+                <p class="service-page-description">Прямое пополнение кошелька Steam в рублях. Введите логин и нужную сумму — средства зачислятся автоматически.</p>
+                <div class="service-page-price">от 100 ₽</div>
             </div>
             <form class="service-form" id="orderForm">
                 <div class="form-group">
                     <label for="account">Логин аккаунта Steam</label>
                     <input type="text" id="account" name="account" placeholder="Ваш логин Steam (не Steam ID)" required>
                 </div>
-                <div class="form-group plans-group">
-                    <label>Сумма пополнения</label>
-                    <div class="plan-grid">
-                        <label class="plan-option">
-                            <input type="radio" name="amount" value="500" checked>
-                            <div class="plan-card"><div class="plan-name">500 ₽</div></div>
-                        </label>
-                        <label class="plan-option">
-                            <input type="radio" name="amount" value="1000">
-                            <div class="plan-card featured"><div class="plan-name">1 000 ₽</div></div>
-                        </label>
-                        <label class="plan-option">
-                            <input type="radio" name="amount" value="2000">
-                            <div class="plan-card"><div class="plan-name">2 000 ₽</div></div>
-                        </label>
-                        <label class="plan-option">
-                            <input type="radio" name="amount" value="5000">
-                            <div class="plan-card"><div class="plan-name">5 000 ₽</div></div>
-                        </label>
+                <div class="form-group">
+                    <label for="amount">Сумма пополнения (₽)</label>
+                    <input type="number" id="amount" name="amount" min="100" step="1" placeholder="Например, 500" required>
+                    <div class="quick-amounts" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                        <button type="button" class="quick-btn" data-amount="500">500 ₽</button>
+                        <button type="button" class="quick-btn" data-amount="1000">1 000 ₽</button>
+                        <button type="button" class="quick-btn" data-amount="2000">2 000 ₽</button>
+                        <button type="button" class="quick-btn" data-amount="5000">5 000 ₽</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="email">Электронная почта</label>
                     <input type="email" id="email" name="email" placeholder="example@mail.com" required>
                 </div>
-                <div class="price-summary" id="priceSummary" style="text-align:center;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;display:none;">
-                    <span style="color:var(--muted-foreground);">Стоимость: </span>
-                    <strong id="totalPrice" style="font-size:1.2em;"></strong>
+                <div class="price-summary" id="priceSummary" style="text-align:center;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;display:none;">
+                    <div style="color:var(--muted-foreground);margin-bottom:4px;">На счёт Steam поступит: <strong id="netLabel"></strong></div>
+                    <div>Стоимость: <strong id="totalPrice" style="font-size:1.3em;color:var(--primary);"></strong></div>
                 </div>
                 <button type="submit" class="pay-button" id="submitBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-                    <span id="btnText">Оплатить</span>
+                    <span id="btnText">Рассчитать и оплатить</span>
                 </button>
                 <p class="form-note">Средства зачисляются на аккаунт Steam автоматически</p>
                 <p class="form-status" id="formStatus"></p>
@@ -100,40 +89,73 @@
         const formStatus = document.getElementById('formStatus');
         const priceSummary = document.getElementById('priceSummary');
         const totalPrice = document.getElementById('totalPrice');
+        const netLabel = document.getElementById('netLabel');
+        const accountInput = document.getElementById('account');
+        const amountInput = document.getElementById('amount');
         let currentPrice = null;
+        let priceTimer = null;
+
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                amountInput.value = btn.dataset.amount;
+                amountInput.dispatchEvent(new Event('input'));
+            });
+        });
+
+        function resetPrice() {
+            currentPrice = null;
+            priceSummary.style.display = 'none';
+            formStatus.textContent = '';
+        }
 
         async function updatePrice() {
-            const account = document.getElementById('account').value.trim();
-            const amount = document.querySelector('input[name="amount"]:checked')?.value;
-            if (!account || !amount) { priceSummary.style.display = 'none'; return; }
+            const account = accountInput.value.trim();
+            const amount = parseInt(amountInput.value);
+            if (!account || !amount || amount < 100) {
+                resetPrice();
+                return;
+            }
 
             totalPrice.textContent = 'Загрузка...';
+            netLabel.textContent = amount + ' ₽';
             priceSummary.style.display = 'block';
+
             try {
                 const res = await fetch(`${API_URL}/api/steam/price?account=${encodeURIComponent(account)}&amount=${amount}`);
                 const data = await res.json();
                 if (data.error) {
-                    const msg = data.error.message || data.error?.error?.message || 'Ошибка';
+                    const msg = data.error?.error?.message || data.error.message || 'Ошибка';
                     throw new Error(msg);
                 }
                 currentPrice = data.sellPrice;
                 totalPrice.textContent = formatPrice(currentPrice);
+                btnText.textContent = 'Оплатить ' + formatPrice(currentPrice);
             } catch (e) {
-                totalPrice.textContent = 'Ошибка: ' + e.message;
+                totalPrice.textContent = e.message;
+                totalPrice.style.color = 'var(--destructive)';
                 currentPrice = null;
+                btnText.textContent = 'Рассчитать и оплатить';
             }
         }
 
-        document.querySelectorAll('input[name="amount"]').forEach(r => r.addEventListener('change', updatePrice));
-        document.getElementById('account').addEventListener('blur', updatePrice);
+        function debouncedUpdate() {
+            clearTimeout(priceTimer);
+            priceTimer = setTimeout(updatePrice, 600);
+        }
+
+        amountInput.addEventListener('input', debouncedUpdate);
+        accountInput.addEventListener('input', () => { resetPrice(); });
+        accountInput.addEventListener('blur', () => {
+            if (amountInput.value) debouncedUpdate();
+        });
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const account = document.getElementById('account').value.trim();
+            const account = accountInput.value.trim();
             const email = document.getElementById('email').value.trim();
-            const netAmount = parseInt(document.querySelector('input[name="amount"]:checked').value);
+            const netAmount = parseInt(amountInput.value);
 
-            if (!account || !email) return;
+            if (!account || !email || !netAmount) return;
             if (!currentPrice) { await updatePrice(); if (!currentPrice) return; }
 
             submitBtn.disabled = true;
@@ -149,29 +171,44 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        account: account,
+                        account,
                         amount: currentPrice,
-                        netAmount: netAmount,
+                        netAmount,
                         description: `Пополнение Steam ${netAmount} руб.`,
-                        orderId: orderId,
+                        orderId,
                         successRedirectUrl: window.location.origin + '/index.html',
                         failRedirectUrl: window.location.href
                     })
                 });
                 const data = await res.json();
-                if (data.error) throw new Error(data.error.message || data.error.details || 'Ошибка создания заказа');
-                if (data.paymentLink) {
-                    window.location.href = data.paymentLink;
-                    return;
-                }
+                if (data.error) throw new Error(data.error?.error?.message || data.error.message || 'Ошибка');
+                if (data.paymentLink) { window.location.href = data.paymentLink; return; }
             } catch (e) {
                 formStatus.textContent = 'Ошибка: ' + e.message;
                 formStatus.style.color = 'var(--destructive)';
             }
 
             submitBtn.disabled = false;
-            btnText.textContent = 'Оплатить';
+            btnText.textContent = 'Рассчитать и оплатить';
         });
     </script>
+
+    <style>
+        .quick-btn {
+            padding: 6px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--foreground);
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .quick-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+    </style>
 </body>
 </html>
