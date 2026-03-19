@@ -138,6 +138,50 @@ app.get('/api/topup/order/:id', async (req, res) => {
 
 // ====================== VOUCHERS (основной терминал) ======================
 
+const COUNTRY_NAMES = {
+    AE:'ОАЭ',AT:'Австрия',AU:'Австралия',BE:'Бельгия',BH:'Бахрейн',
+    BR:'Бразилия',CA:'Канада',CH:'Швейцария',CL:'Чили',CO:'Колумбия',
+    CR:'Коста-Рика',CZ:'Чехия',DE:'Германия',EG:'Египет',ES:'Испания',
+    EU:'Евросоюз',FI:'Финляндия',FR:'Франция',GL:'Глобальный',GR:'Греция',
+    HK:'Гонконг',HU:'Венгрия',ID:'Индонезия',IE:'Ирландия',IN:'Индия',
+    IT:'Италия',JP:'Япония',KR:'Корея',KW:'Кувейт',LB:'Ливан',
+    LU:'Люксембург',MX:'Мексика',MY:'Малайзия',NL:'Нидерланды',NO:'Норвегия',
+    NZ:'Новая Зеландия',OM:'Оман',PE:'Перу',PH:'Филиппины',PL:'Польша',
+    PT:'Португалия',QA:'Катар',RO:'Румыния',RU:'Россия',SA:'Сауд. Аравия',
+    SG:'Сингапур',SK:'Словакия',TH:'Таиланд',TR:'Турция',TW:'Тайвань',
+    UK:'Великобритания',US:'США',UY:'Уругвай',VN:'Вьетнам',ZA:'ЮАР',
+    EUR:'Евро (EUR)',USD:'Доллар (USD)',PLN:'Злотый (PLN)'
+};
+
+let categoriesCache = null;
+let categoriesCacheTime = 0;
+
+app.get('/api/vouchers/categories', async (req, res) => {
+    try {
+        const now = Date.now();
+        if (categoriesCache && (now - categoriesCacheTime) < CACHE_TTL) {
+            return res.json(categoriesCache);
+        }
+        const data = await wata('GET', '/v3/vouchers/services', null, TOKEN_MAIN);
+        const cats = {};
+        for (const s of data) {
+            if (!s.isAvailable) continue;
+            const parts = s.name.split(' | ');
+            const country = parts.length > 1 ? parts.pop() : 'GL';
+            const category = parts.join(' | ');
+            if (!cats[category]) cats[category] = [];
+            cats[category].push({
+                id: s.id,
+                country,
+                countryName: COUNTRY_NAMES[country] || country
+            });
+        }
+        categoriesCache = cats;
+        categoriesCacheTime = now;
+        res.json(cats);
+    } catch (e) { handleError(res, e); }
+});
+
 app.get('/api/vouchers/services', async (req, res) => {
     try {
         const data = await wata('GET', '/v3/vouchers/services', null, TOKEN_MAIN);

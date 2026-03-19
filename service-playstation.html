@@ -38,10 +38,14 @@
                 <div class="service-page-price">от 1000 ₽</div>
             </div>
             <form class="service-form" id="orderForm">
+                <div class="form-group">
+                    <label for="regionSelect">Выберите регион</label>
+                    <select id="regionSelect"></select>
+                </div>
                 <div class="form-group plans-group">
                     <label>Выберите номинал</label>
                     <div class="plan-grid" id="productsGrid">
-                        <div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка товаров...</div>
+                        <div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка...</div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -70,17 +74,19 @@
     <script src="js/api-config.js"></script>
     <script>
         initThemeToggle();
-        const SERVICE_ID = '132';
+        const CATEGORY = 'PlayStation Store Wallet';
         const form = document.getElementById('orderForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const formStatus = document.getElementById('formStatus');
         const productsGrid = document.getElementById('productsGrid');
+        const regionSelect = document.getElementById('regionSelect');
         let vouchers = [];
 
-        async function loadProducts() {
+        async function loadProducts(serviceId) {
+            productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка товаров...</div>';
             try {
-                const res = await fetch(`${API_URL}/api/vouchers/${SERVICE_ID}`);
+                const res = await fetch(`${API_URL}/api/vouchers/${serviceId}`);
                 const data = await res.json();
                 if (data.error) throw new Error(data.error.message || 'Ошибка загрузки');
                 vouchers = data.vouchers || [];
@@ -92,7 +98,7 @@
 
         function renderProducts() {
             if (!vouchers.length) {
-                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Нет доступных товаров</div>';
+                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Нет доступных товаров в этом регионе</div>';
                 return;
             }
             productsGrid.innerHTML = vouchers.map((v, i) => `
@@ -149,7 +155,10 @@
             btnText.textContent = 'Оплатить';
         });
 
-        loadProducts();
+        (async () => {
+            const defaultId = await loadRegions(CATEGORY, regionSelect, loadProducts);
+            if (defaultId) loadProducts(defaultId);
+        })();
     </script>
 </body>
 </html>
