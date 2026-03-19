@@ -1187,6 +1187,20 @@ button.theme-toggle:hover {
     margin-bottom: 6px;
 }
 
+[data-theme="dark"] .plan-card {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+[data-theme="dark"] .plan-option input:checked + .plan-card {
+    background: rgba(14, 165, 233, 0.1);
+    border-color: var(--primary);
+}
+
+[data-theme="dark"] .plan-option:hover .plan-card {
+    border-color: #4b5563;
+}
+
 [data-theme="dark"] .plan-name {
     color: #ffffff;
 }
