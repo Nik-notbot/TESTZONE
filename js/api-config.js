@@ -70,17 +70,81 @@ async function loadRegions(category, selectEl, onRegionChange) {
         }
         const regions = _categoriesCache[category] || [];
         if (!regions.length) return null;
-        selectEl.innerHTML = regions.map(r =>
-            `<option value="${r.id}">${r.countryName} (${r.country})</option>`
-        ).join('');
+
         const ruRegion = regions.find(r => r.country === 'RU');
-        if (ruRegion) selectEl.value = ruRegion.id;
-        selectEl.addEventListener('change', () => onRegionChange(selectEl.value));
-        return selectEl.value;
+        const defaultRegion = ruRegion || regions[0];
+
+        selectEl.innerHTML = regions.map(r =>
+            `<option value="${r.id}"${r.id === defaultRegion.id ? ' selected' : ''}>${r.countryName} (${r.country})</option>`
+        ).join('');
+        selectEl.value = defaultRegion.id;
+
+        initCustomSelect(selectEl, onRegionChange);
+
+        return defaultRegion.id;
     } catch (e) {
         selectEl.innerHTML = '<option>Ошибка загрузки регионов</option>';
         return null;
     }
+}
+
+function initCustomSelect(selectEl, onChange) {
+    const existing = selectEl.parentElement.querySelector('.custom-select');
+    if (existing) existing.remove();
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'custom-select';
+
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'custom-select-trigger';
+
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'custom-select-options';
+    optionsContainer.setAttribute('role', 'listbox');
+
+    const selectedOpt = selectEl.options[selectEl.selectedIndex];
+    trigger.textContent = selectedOpt ? selectedOpt.textContent : '';
+
+    Array.from(selectEl.options).forEach(opt => {
+        const item = document.createElement('div');
+        item.className = 'custom-select-option';
+        item.setAttribute('role', 'option');
+        if (opt.selected) {
+            item.classList.add('selected');
+            item.setAttribute('aria-selected', 'true');
+        }
+        item.textContent = opt.textContent;
+        item.dataset.value = opt.value;
+        item.addEventListener('click', () => {
+            selectEl.value = opt.value;
+            trigger.textContent = opt.textContent;
+            optionsContainer.querySelectorAll('.custom-select-option').forEach(o => {
+                o.classList.remove('selected');
+                o.removeAttribute('aria-selected');
+            });
+            item.classList.add('selected');
+            item.setAttribute('aria-selected', 'true');
+            wrapper.classList.remove('open');
+            if (onChange) onChange(opt.value);
+        });
+        optionsContainer.appendChild(item);
+    });
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.custom-select.open').forEach(s => {
+            if (s !== wrapper) s.classList.remove('open');
+        });
+        wrapper.classList.toggle('open');
+    });
+
+    document.addEventListener('click', () => wrapper.classList.remove('open'));
+    wrapper.addEventListener('click', (e) => e.stopPropagation());
+
+    selectEl.after(wrapper);
+    wrapper.appendChild(trigger);
+    wrapper.appendChild(optionsContainer);
 }
 
 function initThemeToggle() {
