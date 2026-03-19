@@ -167,9 +167,9 @@ app.get('/api/vouchers/categories', async (req, res) => {
         const cats = {};
         for (const s of data) {
             if (!s.isAvailable) continue;
-            const parts = s.name.split(' | ');
-            const country = parts.length > 1 ? parts.pop() : 'GL';
-            const category = parts.join(' | ');
+            const parts = s.name.split(/\s*\|\s*/);
+            const country = parts.length > 1 ? parts.pop().trim() : 'GL';
+            const category = parts.join(' | ').trim();
             if (!cats[category]) cats[category] = [];
             cats[category].push({
                 id: s.id,
@@ -236,6 +236,7 @@ const PRICE_SOURCES = {
         { key: 'xbox', id: '390' },
         { key: 'playstation', id: '132' },
         { key: 'valorant', id: '333' },
+        { key: 'netflix', id: '96' },
     ]
 };
 

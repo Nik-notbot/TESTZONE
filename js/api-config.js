@@ -46,12 +46,13 @@ async function loadDynamicPrices() {
             'service-xbox.html': 'xbox',
             'service-playstation.html': 'playstation',
             'service-valorant.html': 'valorant',
+            'service-netflix.html': 'netflix',
         };
-        document.querySelectorAll('a.service-card').forEach(card => {
+        document.querySelectorAll('a.service-card, a.popular-card').forEach(card => {
             const href = card.getAttribute('href');
             const key = map[href];
             if (key && prices[key]) {
-                const priceEl = card.querySelector('.service-price');
+                const priceEl = card.querySelector('.service-price, .popular-price');
                 if (priceEl) priceEl.textContent = 'от ' + formatPrice(prices[key]);
             }
         });

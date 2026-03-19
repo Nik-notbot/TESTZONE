@@ -30,20 +30,34 @@
         <a href="index.html" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Назад</a>
         <div class="service-page-content">
             <div class="service-page-icon netflix-bg">
-                <img src="netflix.png" alt="Netflix">
+                <img src="netflix.png" alt="Netflix Gift Card">
             </div>
             <div class="service-page-info">
-                <h1>Netflix</h1>
-                <p class="service-page-description">Подписка Netflix — стриминговый сервис с фильмами и сериалами</p>
-                <div class="service-page-price">от 600 ₽</div>
+                <h1>Netflix Gift Card</h1>
+                <p class="service-page-description">Подарочная карта Netflix — стриминговый сервис с фильмами, сериалами и шоу</p>
+                <div class="service-page-price">от 585 ₽</div>
             </div>
-            <form class="service-form" onsubmit="handleSubmit(event)">
+            <form class="service-form" id="orderForm">
+                <div class="form-group">
+                    <label for="regionSelect">Выберите регион</label>
+                    <select id="regionSelect"></select>
+                </div>
+                <div class="form-group plans-group">
+                    <label>Выберите номинал</label>
+                    <div class="plan-grid" id="productsGrid">
+                        <div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка...</div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="email">Электронная почта</label>
                     <input type="email" id="email" name="email" placeholder="example@mail.com" required>
                 </div>
-                <button type="submit" class="pay-button"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>Оплатить</button>
-                <p class="form-note">После оплаты инструкция придёт на указанную почту</p>
+                <button type="submit" class="pay-button" id="submitBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                    <span id="btnText">Оплатить</span>
+                </button>
+                <p class="form-note">Код ваучера придёт на указанную электронную почту</p>
+                <p class="form-status" id="formStatus"></p>
             </form>
         </div>
     </section>
@@ -57,40 +71,94 @@
         <p>© 2025 HEY, STORE! Все права защищены</p>
     </footer>
 
+    <script src="js/api-config.js?v=2"></script>
     <script>
-        const BASEROW_API_TOKEN = 'gUcyV8zyChn6xC8VbTF3eGE0sg92o3T5';
-        const BASEROW_TABLE_ID = '821829';
-        const TG_BOT_TOKEN = '8433047336:AAEGAUDR3RWYPtPe2CcGKGHwEMtlB1k9IVU';
-        const TG_CHAT_ID = '7964821965';
+        initThemeToggle();
+        const CATEGORY = 'Netflix Gift Card';
+        const form = document.getElementById('orderForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const formStatus = document.getElementById('formStatus');
+        const productsGrid = document.getElementById('productsGrid');
+        const regionSelect = document.getElementById('regionSelect');
+        let vouchers = [];
 
-        async function handleSubmit(event) {
-            event.preventDefault();
-            const email = document.getElementById('email').value;
-            if (!email) return;
-            const productName = document.querySelector('h1').textContent;
+        async function loadProducts(serviceId) {
+            productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Загрузка товаров...</div>';
             try {
-                await fetch(`https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Token ${BASEROW_API_TOKEN}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 'Email client': email, 'Product name': productName, 'Price': '0' })
-                });
-                const message = `📨 *Новая заявка!*\n\n📦 Продукт: ${productName}\n📧 Email: ${email}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
-                await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
-                });
-            } catch (e) { console.error('Error:', e); }
-            event.target.reset();
-            alert('Заявка отправлена! Мы свяжемся с вами по email.');
+                const res = await fetch(`${API_URL}/api/vouchers/${serviceId}`);
+                const data = await res.json();
+                if (data.error) throw new Error(data.error.message || 'Ошибка загрузки');
+                vouchers = data.vouchers || [];
+                renderProducts();
+            } catch (e) {
+                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--destructive);grid-column:1/-1;">Не удалось загрузить товары. Попробуйте позже.</div>';
+            }
         }
 
-        const themeToggle = document.querySelector('.theme-toggle');
-        const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>`;
-        const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>`;
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeToggle.innerHTML = sunIcon; } else { themeToggle.innerHTML = moonIcon; }
-        themeToggle.addEventListener('click', () => { const currentTheme = document.documentElement.getAttribute('data-theme'); if (currentTheme === 'dark') { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeToggle.innerHTML = moonIcon; } else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeToggle.innerHTML = sunIcon; } });
+        function renderProducts() {
+            if (!vouchers.length) {
+                productsGrid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted-foreground);grid-column:1/-1;">Нет доступных товаров в этом регионе</div>';
+                return;
+            }
+            productsGrid.innerHTML = vouchers.map((v, i) => `
+                <label class="plan-option">
+                    <input type="radio" name="voucher" value="${v.id}" data-price="${v.sellPrice}" data-name="${v.name}" ${i === 0 ? 'checked' : ''}>
+                    <div class="plan-card ${i === 0 ? 'featured' : ''}">
+                        <div class="plan-name">${v.name}</div>
+                        <div class="plan-price">${formatPrice(v.sellPrice)}</div>
+                    </div>
+                </label>
+            `).join('');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const selected = document.querySelector('input[name="voucher"]:checked');
+            if (!email || !selected) return;
+
+            submitBtn.disabled = true;
+            btnText.textContent = 'Создание заказа...';
+            formStatus.textContent = '';
+
+            const orderId = generateOrderId();
+            const productName = selected.dataset.name;
+            const price = parseFloat(selected.dataset.price);
+
+            try {
+                await trackOrder(email, `${document.querySelector('h1').textContent} - ${productName}`, price, orderId);
+
+                const res = await fetch(`${API_URL}/api/vouchers/order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        voucherId: parseInt(selected.value),
+                        amount: price,
+                        count: 1,
+                        orderId,
+                        email,
+                        description: `${document.querySelector('h1').textContent} - ${productName}`,
+                        successRedirectUrl: window.location.origin + '/index.html',
+                        failRedirectUrl: window.location.href
+                    })
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error.message || data.error.details || 'Ошибка');
+                if (data.paymentLink) { window.location.href = data.paymentLink; return; }
+            } catch (e) {
+                formStatus.textContent = 'Ошибка: ' + e.message;
+                formStatus.style.color = 'var(--destructive)';
+            }
+
+            submitBtn.disabled = false;
+            btnText.textContent = 'Оплатить';
+        });
+
+        (async () => {
+            const defaultId = await loadRegions(CATEGORY, regionSelect, loadProducts);
+            if (defaultId) loadProducts(defaultId);
+        })();
     </script>
 </body>
 </html>
