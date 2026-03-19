@@ -37,7 +37,7 @@
                 <p class="service-page-description">Покупка звёзд Telegram — внутренняя валюта для оплаты цифровых товаров, подписок и поддержки авторов</p>
                 <div class="service-page-price">от 100 ₽</div>
             </div>
-            <form class="service-form" id="orderForm" onsubmit="handleSubmit(event)">
+            <form class="service-form" id="orderForm">
                 <div class="form-group">
                     <label for="username">Username в Telegram</label>
                     <input type="text" id="username" name="username" placeholder="@username (без @)" required>
@@ -46,20 +46,20 @@
                     <label>Количество звёзд</label>
                     <div class="plan-grid">
                         <label class="plan-option">
-                            <input type="radio" name="stars" value="50" data-price="100">
-                            <div class="plan-card"><div class="plan-name">50 ★</div><div class="plan-price">100 ₽</div></div>
+                            <input type="radio" name="stars" value="50">
+                            <div class="plan-card"><div class="plan-name">50 ★</div></div>
                         </label>
                         <label class="plan-option">
-                            <input type="radio" name="stars" value="100" data-price="190" checked>
-                            <div class="plan-card featured"><div class="plan-name">100 ★</div><div class="plan-price">190 ₽</div></div>
+                            <input type="radio" name="stars" value="100" checked>
+                            <div class="plan-card featured"><div class="plan-name">100 ★</div></div>
                         </label>
                         <label class="plan-option">
-                            <input type="radio" name="stars" value="500" data-price="900">
-                            <div class="plan-card"><div class="plan-name">500 ★</div><div class="plan-price">900 ₽</div></div>
+                            <input type="radio" name="stars" value="500">
+                            <div class="plan-card"><div class="plan-name">500 ★</div></div>
                         </label>
                         <label class="plan-option">
-                            <input type="radio" name="stars" value="1000" data-price="1700">
-                            <div class="plan-card"><div class="plan-name">1 000 ★</div><div class="plan-price">1 700 ₽</div></div>
+                            <input type="radio" name="stars" value="1000">
+                            <div class="plan-card"><div class="plan-name">1 000 ★</div></div>
                         </label>
                     </div>
                 </div>
@@ -67,11 +67,15 @@
                     <label for="email">Электронная почта</label>
                     <input type="email" id="email" name="email" placeholder="example@mail.com" required>
                 </div>
+                <div class="price-summary" id="priceSummary" style="text-align:center;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;display:none;">
+                    <span style="color:var(--muted-foreground);">Стоимость: </span>
+                    <strong id="totalPrice" style="font-size:1.2em;"></strong>
+                </div>
                 <button type="submit" class="pay-button" id="submitBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-                    <span id="btnText">Оставить заявку</span>
+                    <span id="btnText">Оплатить</span>
                 </button>
-                <p class="form-note">Мы свяжемся с вами по email для подтверждения и оплаты</p>
+                <p class="form-note">Звёзды будут отправлены на указанный аккаунт Telegram</p>
                 <p class="form-status" id="formStatus"></p>
             </form>
         </div>
@@ -90,38 +94,80 @@
     <script>
         initThemeToggle();
 
-        async function handleSubmit(event) {
-            event.preventDefault();
-            const email = document.getElementById('email').value.trim();
+        const form = document.getElementById('orderForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const formStatus = document.getElementById('formStatus');
+        const priceSummary = document.getElementById('priceSummary');
+        const totalPrice = document.getElementById('totalPrice');
+        let pricePerStar = null;
+
+        async function updatePrice() {
             const username = document.getElementById('username').value.trim().replace(/^@/, '');
-            const selected = document.querySelector('input[name="stars"]:checked');
-            if (!email || !username || !selected) return;
+            const count = parseInt(document.querySelector('input[name="stars"]:checked')?.value || '0');
+            if (!username || !count) { priceSummary.style.display = 'none'; return; }
 
-            const stars = selected.value;
-            const price = selected.dataset.price;
-            const submitBtn = document.getElementById('submitBtn');
-            const btnText = document.getElementById('btnText');
-            const formStatus = document.getElementById('formStatus');
+            totalPrice.textContent = 'Загрузка...';
+            priceSummary.style.display = 'block';
+            try {
+                const res = await fetch(`${API_URL}/api/stars/price?username=${encodeURIComponent(username)}`);
+                const data = await res.json();
+                if (data.error) {
+                    const msg = data.error.message || data.error?.error?.message || 'Ошибка';
+                    throw new Error(msg);
+                }
+                pricePerStar = data.sellPricePerStar;
+                totalPrice.textContent = formatPrice(pricePerStar * count);
+            } catch (e) {
+                totalPrice.textContent = 'Ошибка: ' + e.message;
+                pricePerStar = null;
+            }
+        }
 
+        document.querySelectorAll('input[name="stars"]').forEach(r => r.addEventListener('change', updatePrice));
+        document.getElementById('username').addEventListener('blur', updatePrice);
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim().replace(/^@/, '');
+            const email = document.getElementById('email').value.trim();
+            const count = parseInt(document.querySelector('input[name="stars"]:checked').value);
+
+            if (!username || !email || !count) return;
+            if (!pricePerStar) { await updatePrice(); if (!pricePerStar) return; }
+
+            const amount = Math.ceil(pricePerStar * count);
             submitBtn.disabled = true;
-            btnText.textContent = 'Отправка...';
+            btnText.textContent = 'Создание заказа...';
             formStatus.textContent = '';
 
             const orderId = generateOrderId();
 
             try {
-                await trackOrder(email, `Telegram Stars x${stars} (@${username})`, price, orderId);
-                formStatus.textContent = 'Заявка отправлена! Мы свяжемся с вами по email.';
-                formStatus.style.color = 'var(--primary)';
-                event.target.reset();
+                await trackOrder(email, `Telegram Stars x${count}`, amount, orderId);
+
+                const res = await fetch(`${API_URL}/api/stars/order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username, count, amount,
+                        description: `Покупка ${count} звёзд Telegram`,
+                        orderId,
+                        successRedirectUrl: window.location.origin + '/index.html',
+                        failRedirectUrl: window.location.href
+                    })
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error.message || data.error.details || 'Ошибка');
+                if (data.paymentLink) { window.location.href = data.paymentLink; return; }
             } catch (e) {
                 formStatus.textContent = 'Ошибка: ' + e.message;
                 formStatus.style.color = 'var(--destructive)';
             }
 
             submitBtn.disabled = false;
-            btnText.textContent = 'Оставить заявку';
-        }
+            btnText.textContent = 'Оплатить';
+        });
     </script>
 </body>
 </html>
