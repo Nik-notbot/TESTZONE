@@ -116,7 +116,8 @@ app.get('/api/topup/:gameId', async (req, res) => {
         if (data.products) {
             data.products = data.products
                 .filter(p => p.isAvailable)
-                .map(p => ({ ...p, sellPrice: calcSellPrice(p.price, p.minPrice) }));
+                .map(p => ({ ...p, sellPrice: calcSellPrice(p.price, p.minPrice) }))
+                .sort((a, b) => a.sellPrice - b.sellPrice);
         }
         res.json(data);
     } catch (e) { handleError(res, e); }
@@ -195,7 +196,8 @@ app.get('/api/vouchers/:serviceId', async (req, res) => {
         if (data.vouchers) {
             data.vouchers = data.vouchers
                 .filter(v => v.isAvailable && v.stock > 0)
-                .map(v => ({ ...v, sellPrice: calcSellPrice(v.price, v.minPrice) }));
+                .map(v => ({ ...v, sellPrice: calcSellPrice(v.price, v.minPrice) }))
+                .sort((a, b) => a.sellPrice - b.sellPrice);
         }
         res.json(data);
     } catch (e) { handleError(res, e); }
