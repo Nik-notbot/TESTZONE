@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Steam - HEY, STORE!</title>
     <link rel="icon" type="image/png" href="logo.png">
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -79,7 +79,7 @@
         <p>© 2025 HEY, STORE! Все права защищены</p>
     </footer>
 
-    <script src="js/api-config.js?v=3"></script>
+    <script src="js/api-config.js?v=4"></script>
     <script>
         initThemeToggle();
 
@@ -165,7 +165,7 @@
             const orderId = generateOrderId();
 
             try {
-                await trackOrder(email, `Пополнение Steam ${netAmount}₽`, currentPrice, orderId);
+                const rowId = await trackSteamOrder(email, account, netAmount, currentPrice, orderId);
 
                 const res = await fetch(`${API_URL}/api/steam/order`, {
                     method: 'POST',
@@ -176,7 +176,7 @@
                         netAmount,
                         description: `Пополнение Steam ${netAmount} руб.`,
                         orderId,
-                        successRedirectUrl: window.location.origin + '/success.html?orderId=' + encodeURIComponent(orderId) + '&type=steam',
+                        successRedirectUrl: window.location.origin + '/success.html?orderId=' + encodeURIComponent(orderId) + '&type=steam&rowId=' + (rowId || '') + '&table=steam',
                         failRedirectUrl: window.location.href
                     })
                 });

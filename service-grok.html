@@ -108,13 +108,11 @@
         <p>© 2025 HEY, STORE! Все права защищены</p>
     </footer>
 
+    <script src="js/api-config.js?v=4"></script>
     <script src="https://static.wata.pro/widget.js"></script>
     <script>
+        initThemeToggle();
         const WATA_PUBLIC_ID = '3a200efe-8265-a672-3b15-d6db5a80b780';
-        const BASEROW_API_TOKEN = 'gUcyV8zyChn6xC8VbTF3eGE0sg92o3T5';
-        const BASEROW_TABLE_ID = '821829';
-        const TG_BOT_TOKEN = '8433047336:AAEGAUDR3RWYPtPe2CcGKGHwEMtlB1k9IVU';
-        const TG_CHAT_ID = '7964821965';
         const orderForm = document.getElementById('orderForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
@@ -130,26 +128,15 @@
             const email = document.getElementById('email').value;
             if (!email) return;
             const plan = getSelectedPlan();
-            const orderId = 'HS-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
+            const orderId = generateOrderId();
 
             submitBtn.disabled = true;
             btnText.textContent = 'Открытие оплаты...';
             formStatus.textContent = '';
             formStatus.className = 'form-status';
 
-            try {
-                await fetch(`https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Token ${BASEROW_API_TOKEN}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 'Email client': email, 'Product name': plan.name, 'Price': plan.price })
-                });
-                const message = `🛒 *Новый заказ!*\n\n📦 Продукт: ${plan.name}\n💰 Цена: ${plan.price} ₽\n📧 Email: ${email}\n🆔 Заказ: ${orderId}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
-                await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
-                });
-            } catch (e) { console.error('Tracking error:', e); }
+            const service = document.querySelector('h1').textContent;
+            const rowId = await trackNeuralOrder(email, service, plan.name, plan.price, orderId);
 
             const widget = new window.PaymentWidget({
                 publicId: WATA_PUBLIC_ID,
@@ -157,7 +144,7 @@
                 currency: 'RUB',
                 orderId: orderId,
                 description: plan.name,
-                successRedirectUrl: window.location.origin + '/index.html',
+                successRedirectUrl: window.location.origin + '/success.html?orderId=' + encodeURIComponent(orderId) + '&type=neural&rowId=' + (rowId || ''),
                 failRedirectUrl: window.location.href,
             });
             widget.open();
@@ -165,13 +152,6 @@
             submitBtn.disabled = false;
             btnText.textContent = 'Оплатить';
         });
-
-        const themeToggle = document.querySelector('.theme-toggle');
-        const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>`;
-        const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>`;
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeToggle.innerHTML = sunIcon; } else { themeToggle.innerHTML = moonIcon; }
-        themeToggle.addEventListener('click', () => { const currentTheme = document.documentElement.getAttribute('data-theme'); if (currentTheme === 'dark') { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeToggle.innerHTML = moonIcon; } else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeToggle.innerHTML = sunIcon; } });
     </script>
 </body>
 </html>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Статус заказа - HEY, STORE!</title>
     <link rel="icon" type="image/png" href="logo.png">
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -99,13 +99,15 @@
         }
     </style>
 
-    <script src="js/api-config.js?v=3"></script>
+    <script src="js/api-config.js?v=4"></script>
     <script>
         initThemeToggle();
 
         const params = new URLSearchParams(window.location.search);
         const orderId = params.get('orderId');
         const orderType = params.get('type') || 'vouchers';
+        const rowId = params.get('rowId');
+        const tableName = params.get('table');
 
         const statusTitle = document.getElementById('statusTitle');
         const statusText = document.getElementById('statusText');
@@ -121,10 +123,45 @@
             stars: `/api/stars/order/`
         };
 
+        function getTableId() {
+            if (tableName && BASEROW_TABLES[tableName]) return BASEROW_TABLES[tableName];
+            const map = { vouchers: 'vouchers', topup: 'vouchers', steam: 'steam', stars: 'telegram', neural: 'neural' };
+            return BASEROW_TABLES[map[orderType]] || null;
+        }
+
+        async function updateBaserowStatus(status, extraData) {
+            if (!rowId) return;
+            const tableId = getTableId();
+            if (!tableId) return;
+            const data = { 'Статус': status };
+            if (extraData) Object.assign(data, extraData);
+            await baserowUpdate(tableId, rowId, data);
+        }
+
         if (!orderId) {
             showError('Заказ не найден', 'Не указан номер заказа');
+        } else if (orderType === 'neural') {
+            handleNeural();
         } else {
             checkOrder();
+        }
+
+        async function handleNeural() {
+            await updateBaserowStatus('Paid');
+            spinner.style.display = 'none';
+            statusTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg><br>Оплата прошла!';
+            statusText.textContent = 'Мы получили ваш заказ и скоро свяжемся с вами по email.';
+            orderInfo.style.display = 'block';
+            orderInfo.textContent = `Заказ: ${orderId}`;
+            homeBtn.style.display = 'flex';
+            try {
+                let msg = `✅ *Оплата нейросети!*\n\n🆔 Заказ: ${orderId}\n⏰ ${new Date().toLocaleString('ru-RU')}`;
+                await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'Markdown' })
+                });
+            } catch (e) { /* silent */ }
         }
 
         let attempts = 0;
@@ -154,6 +191,7 @@
                     statusText.textContent = 'Если вы уже оплатили, подождите пару минут...';
                     retryLater();
                 } else if (status === 'Fail') {
+                    await updateBaserowStatus('Failed');
                     showError('Ошибка заказа', 'К сожалению, заказ не удался. Обратитесь в поддержку.');
                 } else {
                     statusTitle.textContent = `Статус: ${status}`;
@@ -175,11 +213,13 @@
             }
         }
 
-        function showSuccess(data) {
+        async function showSuccess(data) {
             spinner.style.display = 'none';
             statusTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg><br>Заказ выполнен!';
 
+            const extraData = {};
             if (data.vouchers && data.vouchers.length) {
+                extraData['Код ваучера'] = data.vouchers.join('\n');
                 voucherCodes.style.display = 'block';
                 voucherCodes.innerHTML = '<h3 style="margin-bottom:16px;">Ваши коды:</h3>' +
                     data.vouchers.map(code => `
@@ -198,6 +238,8 @@
             } else {
                 statusText.textContent = 'Заказ успешно выполнен!';
             }
+
+            await updateBaserowStatus('Success', extraData);
 
             if (data.email) {
                 orderInfo.style.display = 'block';

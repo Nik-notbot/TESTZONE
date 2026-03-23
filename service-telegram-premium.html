@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Premium - HEY, STORE!</title>
     <link rel="icon" type="image/png" href="logo.png">
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -71,7 +71,7 @@
         <p>© 2025 HEY, STORE! Все права защищены</p>
     </footer>
 
-    <script src="js/api-config.js?v=3"></script>
+    <script src="js/api-config.js?v=4"></script>
     <script>
         initThemeToggle();
         const GAME_ID = '185';
@@ -131,7 +131,7 @@
             const price = parseFloat(selected.dataset.price);
 
             try {
-                await trackOrder(email, `Telegram Premium - ${productName}`, price, orderId);
+                const rowId = await trackTelegramOrder(email, 'Premium', username, productName, price, orderId);
 
                 const res = await fetch(`${API_URL}/api/topup/order`, {
                     method: 'POST',
@@ -143,7 +143,7 @@
                         orderId,
                         email,
                         description: `Telegram Premium - ${productName}`,
-                        successRedirectUrl: window.location.origin + '/success.html?orderId=' + encodeURIComponent(orderId) + '&type=topup',
+                        successRedirectUrl: window.location.origin + '/success.html?orderId=' + encodeURIComponent(orderId) + '&type=topup&rowId=' + (rowId || '') + '&table=telegram',
                         failRedirectUrl: window.location.href
                     })
                 });

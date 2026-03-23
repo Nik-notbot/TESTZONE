@@ -1610,3 +1610,85 @@ footer p {
         margin-top: 16px;
     }
 }
+
+.foreign-card-banner {
+    max-width: 900px;
+    margin: 0 auto 32px;
+    padding: 0 24px;
+}
+
+.foreign-card-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+    border-radius: 16px;
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.foreign-card-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(14, 165, 233, 0.3);
+}
+
+.foreign-card-icon {
+    width: 56px;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.foreign-card-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.foreign-card-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.foreign-card-desc {
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.foreign-card-arrow {
+    flex-shrink: 0;
+    opacity: 0.7;
+    transition: transform 0.2s;
+}
+
+.foreign-card-link:hover .foreign-card-arrow {
+    transform: translateX(4px);
+    opacity: 1;
+}
+
+@media (max-width: 600px) {
+    .foreign-card-banner {
+        padding: 0 16px;
+        margin-bottom: 24px;
+    }
+    .foreign-card-link {
+        padding: 16px 18px;
+    }
+    .foreign-card-icon {
+        width: 48px;
+        height: 48px;
+    }
+    .foreign-card-title {
+        font-size: 16px;
+    }
+    .foreign-card-desc {
+        font-size: 13px;
+    }
+}

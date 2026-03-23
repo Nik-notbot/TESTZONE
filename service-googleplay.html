@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Play - HEY, STORE!</title>
     <link rel="icon" type="image/png" href="logo.png">
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -71,7 +71,7 @@
         <p>© 2025 HEY, STORE! Все права защищены</p>
     </footer>
 
-    <script src="js/api-config.js?v=3"></script>
+    <script src="js/api-config.js?v=4"></script>
     <script>
         initThemeToggle();
         const CATEGORY = 'Google Play Gift Code';
@@ -127,7 +127,9 @@
             const price = parseFloat(selected.dataset.price);
 
             try {
-                await trackOrder(email, `${document.querySelector('h1').textContent} - ${productName}`, price, orderId);
+                const serviceName = document.querySelector('h1').textContent;
+                const regionText = document.getElementById('regionSelect')?.options[document.getElementById('regionSelect')?.selectedIndex]?.textContent || '';
+                const rowId = await trackVoucherOrder(email, serviceName, regionText, productName, price, orderId);
 
                 const res = await fetch(`${API_URL}/api/vouchers/order`, {
                     method: 'POST',
@@ -139,7 +141,7 @@
                         orderId,
                         email,
                         description: `${document.querySelector('h1').textContent} - ${productName}`,
-                        successRedirectUrl: window.location.origin + '/success.html?orderId=' + encodeURIComponent(orderId) + '&type=vouchers',
+                        successRedirectUrl: window.location.origin + '/success.html?orderId=' + encodeURIComponent(orderId) + '&type=vouchers&rowId=' + (rowId || '') + '&table=vouchers',
                         failRedirectUrl: window.location.href
                     })
                 });

@@ -3,24 +3,127 @@
 const API_URL = 'https://heystore-api.onrender.com';
 
 const BASEROW_API_TOKEN = 'gUcyV8zyChn6xC8VbTF3eGE0sg92o3T5';
-const BASEROW_TABLE_ID = '821829';
 const TG_BOT_TOKEN = '8433047336:AAEGAUDR3RWYPtPe2CcGKGHwEMtlB1k9IVU';
 const TG_CHAT_ID = '7964821965';
 
-async function trackOrder(email, productName, price, orderId) {
+const BASEROW_TABLES = {
+    neural: '821829',
+    steam: '894772',
+    vouchers: '894773',
+    telegram: '894774'
+};
+
+const COMMISSION_RATE = 0.085;
+const PROFIT_RATE = 0.05;
+
+async function baserowCreate(tableId, data) {
     try {
-        await fetch(`https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`, {
+        const res = await fetch(`https://api.baserow.io/api/database/rows/table/${tableId}/?user_field_names=true`, {
             method: 'POST',
             headers: { 'Authorization': `Token ${BASEROW_API_TOKEN}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 'Email client': email, 'Product name': productName, 'Price': String(price) })
+            body: JSON.stringify(data)
         });
-        const message = `🛒 *Новый заказ!*\n\n📦 Продукт: ${productName}\n💰 Цена: ${price} ₽\n📧 Email: ${email}\n🆔 Заказ: ${orderId}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
+        const row = await res.json();
+        return row.id || null;
+    } catch (e) { console.error('Baserow create error:', e); return null; }
+}
+
+async function baserowUpdate(tableId, rowId, data) {
+    try {
+        await fetch(`https://api.baserow.io/api/database/rows/table/${tableId}/${rowId}/?user_field_names=true`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Token ${BASEROW_API_TOKEN}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+    } catch (e) { console.error('Baserow update error:', e); }
+}
+
+function calcFinancials(sellPrice) {
+    const commission = Math.round(sellPrice * COMMISSION_RATE * 100) / 100;
+    const cost = Math.round(sellPrice * (1 - COMMISSION_RATE - PROFIT_RATE) * 100) / 100;
+    const profit = Math.round((sellPrice - cost - commission) * 100) / 100;
+    return { cost, commission, profit };
+}
+
+async function sendTgNotification(product, price, email, orderId) {
+    try {
+        const message = `🛒 *Новый заказ!*\n\n📦 Продукт: ${product}\n💰 Цена: ${price} ₽\n📧 Email: ${email}\n🆔 Заказ: ${orderId}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
         await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
         });
-    } catch (e) { console.error('Tracking error:', e); }
+    } catch (e) { /* silent */ }
+}
+
+async function trackNeuralOrder(email, service, plan, price, orderId) {
+    const rowId = await baserowCreate(BASEROW_TABLES.neural, {
+        'Дата': new Date().toISOString(),
+        'Order ID': orderId,
+        'Email client': email,
+        'Сервис': service,
+        'Тариф': plan,
+        'Сумма продажи': parseFloat(price),
+        'Статус': 'Pending'
+    });
+    await sendTgNotification(service + ' — ' + plan, price, email, orderId);
+    return rowId;
+}
+
+async function trackVoucherOrder(email, service, region, nominal, price, orderId) {
+    const fin = calcFinancials(price);
+    const rowId = await baserowCreate(BASEROW_TABLES.vouchers, {
+        'Дата': new Date().toISOString(),
+        'Order ID': orderId,
+        'Email': email,
+        'Сервис': service,
+        'Регион': region || '',
+        'Номинал': nominal || '',
+        'Сумма продажи': price,
+        'Закуп': fin.cost,
+        'Комиссия': fin.commission,
+        'Прибыль': fin.profit,
+        'Статус': 'Pending'
+    });
+    await sendTgNotification(service + (nominal ? ' — ' + nominal : ''), price, email, orderId);
+    return rowId;
+}
+
+async function trackSteamOrder(email, account, netAmount, price, orderId) {
+    const fin = calcFinancials(price);
+    const rowId = await baserowCreate(BASEROW_TABLES.steam, {
+        'Дата': new Date().toISOString(),
+        'Order ID': orderId,
+        'Email': email,
+        'Аккаунт': account,
+        'Сумма пополнения': netAmount,
+        'Сумма продажи': price,
+        'Закуп': fin.cost,
+        'Комиссия': fin.commission,
+        'Прибыль': fin.profit,
+        'Статус': 'Pending'
+    });
+    await sendTgNotification('Пополнение Steam ' + netAmount + '₽', price, email, orderId);
+    return rowId;
+}
+
+async function trackTelegramOrder(email, type, username, quantity, price, orderId) {
+    const fin = calcFinancials(price);
+    const rowId = await baserowCreate(BASEROW_TABLES.telegram, {
+        'Дата': new Date().toISOString(),
+        'Order ID': orderId,
+        'Email': email,
+        'Тип': type,
+        'Username': username,
+        'Количество': String(quantity),
+        'Сумма продажи': price,
+        'Закуп': fin.cost,
+        'Комиссия': fin.commission,
+        'Прибыль': fin.profit,
+        'Статус': 'Pending'
+    });
+    await sendTgNotification('Telegram ' + type + (type === 'Stars' ? ' x' + quantity : ' — ' + quantity), price, email, orderId);
+    return rowId;
 }
 
 function generateOrderId() {
