@@ -28,6 +28,55 @@
       <script src="https://cdn.poehali.dev/intertnal/js/inspector-min.js"></script>
     <script type="module" crossorigin src="assets/index-BHGWXg-9.js"></script>
     <link rel="stylesheet" crossorigin href="assets/index-BF9lx-oC.css">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style id="compact-filters">
+      .back-bar { display: none !important; }
+
+      /* Header — match main page */
+      #root > div > header {
+        font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        padding: 16px 40px !important;
+      }
+      #root > div > header h1 {
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+      }
+      #root > div > header p {
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        color: #EF4444 !important;
+        line-height: 1 !important;
+      }
+      #root > div > header nav {
+        margin-left: 20px !important;
+        gap: 8px !important;
+      }
+      #root > div > header button,
+      #root > div > header a {
+        font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        height: 40px !important;
+        border-radius: 12px !important;
+        padding: 0 16px !important;
+        gap: 8px !important;
+      }
+
+      /* Sidebar spacing */
+      .flex-1.flex.flex-col.justify-evenly {
+        justify-content: flex-start !important;
+        gap: 8px !important;
+        padding-top: 12px !important;
+      }
+      aside h2, aside h3 {
+        margin-top: 6px !important;
+        margin-bottom: 4px !important;
+      }
+      aside .space-y-2 > * + *, aside .space-y-3 > * + *, aside .space-y-4 > * + * {
+        margin-top: 4px !important;
+      }
+    </style>
   </head>
 
 <body>
@@ -63,12 +112,70 @@
 </noscript>
 <!-- /Yandex.Metrika counter -->
 <script>
+function compactFilters() {
+    document.querySelectorAll('.back-bar').forEach(function(el) { el.remove(); });
+
+    var hdr = document.querySelector('#root > div > header');
+    if (hdr) {
+        hdr.style.fontFamily = "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+        hdr.style.padding = '16px 40px';
+        var h1 = hdr.querySelector('h1');
+        if (h1) { h1.style.fontSize = '20px'; h1.style.fontWeight = '700'; h1.style.lineHeight = '1.2'; }
+        hdr.querySelectorAll('p').forEach(function(p) {
+            p.style.fontSize = '12px'; p.style.fontWeight = '500'; p.style.color = '#EF4444'; p.style.lineHeight = '1';
+            if (p.textContent.trim() === 'финансы без санкций') p.textContent = 'Финансы без санкций';
+        });
+        var nav = hdr.querySelector('nav');
+        if (nav) { nav.style.marginLeft = '20px'; nav.style.gap = '8px'; }
+        hdr.querySelectorAll('button, a').forEach(function(btn) {
+            btn.style.fontFamily = "'IBM Plex Sans', sans-serif";
+            btn.style.fontSize = '14px'; btn.style.fontWeight = '500';
+            btn.style.height = '40px'; btn.style.borderRadius = '12px';
+            btn.style.padding = '0 16px'; btn.style.gap = '8px';
+        });
+    }
+
+    var sidebarCol = document.querySelector('.flex-1.flex.flex-col.justify-evenly');
+    if (sidebarCol) {
+        sidebarCol.style.justifyContent = 'flex-start';
+        sidebarCol.style.gap = '8px';
+        sidebarCol.style.paddingTop = '12px';
+    }
+
+    var sidebar = document.querySelector('aside') || document.querySelector('h2')?.closest('[class*="space-y"], [class*="gap"]');
+    if (!sidebar) {
+        var h2 = document.querySelector('h2');
+        if (h2) sidebar = h2.parentElement;
+    }
+    if (sidebar) {
+        sidebar.style.gap = '4px';
+        sidebar.querySelectorAll('[class*="space-y"]').forEach(function(el) {
+            el.style.setProperty('--tw-space-y-reverse', '0', 'important');
+            el.querySelectorAll(':scope > * + *').forEach(function(c) { c.style.marginTop = '4px'; });
+        });
+        sidebar.querySelectorAll('h3').forEach(function(h) { h.style.marginTop = '6px'; h.style.marginBottom = '2px'; });
+        sidebar.querySelectorAll('h2').forEach(function(h) { h.style.marginTop = '6px'; h.style.marginBottom = '4px'; });
+        sidebar.querySelectorAll('label').forEach(function(l) { l.style.padding = '2px 0'; });
+    }
+}
+var _obs = new MutationObserver(function() { compactFilters(); });
+_obs.observe(document.body, { childList: true, subtree: true });
+setTimeout(compactFilters, 500);
+setTimeout(compactFilters, 1500);
+setTimeout(compactFilters, 3000);
+
 document.addEventListener('click', function(e) {
     var el = e.target.closest('button, a, [role="button"]');
-    if (el && el.textContent.trim().indexOf('eSIM') !== -1) {
+    if (!el) return;
+    var text = el.textContent.trim();
+    if (text.indexOf('eSIM') !== -1) {
         e.preventDefault();
         e.stopPropagation();
         window.top.location.href = 'https://heyesim.net';
+    } else if (text.indexOf('VPN') !== -1) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.top.location.href = 'https://t.me/hey_vpn_bot';
     }
 }, true);
 </script>

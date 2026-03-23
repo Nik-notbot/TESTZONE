@@ -8,33 +8,13 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'IBM Plex Sans', sans-serif; background: #f5f5f5; }
-        .back-bar {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);
-            border-bottom: 1px solid #e5e7eb;
-            padding: 12px 24px;
-            display: flex; align-items: center; gap: 12px;
-        }
-        .back-bar a {
-            display: flex; align-items: center; gap: 8px;
-            text-decoration: none; color: #1a1a2e;
-            font-size: 15px; font-weight: 500;
-        }
-        .back-bar a:hover { color: #0ea5e9; }
         iframe {
             width: 100%; height: 100vh;
-            border: none; margin-top: 48px;
-            height: calc(100vh - 48px);
+            border: none;
         }
     </style>
 </head>
 <body>
-    <div class="back-bar">
-        <a href="index.html">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            HEY, STORE!
-        </a>
-    </div>
     <iframe src="fintech/index.html" allow="payment"></iframe>
 </body>
 </html>
