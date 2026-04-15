@@ -181,7 +181,9 @@
         }
 
         let attempts = 0;
+        let successEmptyRetries = 0;
         const MAX_ATTEMPTS = 60;
+        const MAX_SUCCESS_EMPTY_RETRIES = 10;
 
         async function checkOrder() {
             try {
@@ -198,7 +200,16 @@
                 const status = data.status;
 
                 if (status === 'Success') {
-                    showSuccess(data);
+                    const codes = extractVoucherCodes(data);
+                    if (codes.length === 0 && orderType === 'vouchers' && successEmptyRetries < MAX_SUCCESS_EMPTY_RETRIES) {
+                        successEmptyRetries++;
+                        statusTitle.textContent = 'Заказ выполнен';
+                        statusText.textContent = `Получаем код ваучера... (попытка ${successEmptyRetries}/${MAX_SUCCESS_EMPTY_RETRIES})`;
+                        console.log(`Success but vouchers empty, retry ${successEmptyRetries}/${MAX_SUCCESS_EMPTY_RETRIES}`);
+                        setTimeout(checkOrder, 5000);
+                    } else {
+                        showSuccess(data);
+                    }
                 } else if (status === 'Paid') {
                     statusTitle.textContent = 'Заказ оплачен';
                     statusText.textContent = 'Выполняем ваш заказ, пожалуйста подождите...';
@@ -278,7 +289,48 @@
             } else if (orderType === 'topup') {
                 statusText.textContent = 'Пополнение выполнено!';
             } else if (orderType === 'vouchers') {
-                statusText.textContent = 'Заказ выполнен! Код ваучера отправлен на вашу почту.';
+                statusText.innerHTML = 'Заказ выполнен, но код ваучера пока не получен от поставщика.<br>Код будет отправлен на вашу почту. Если не придёт — обратитесь в поддержку.';
+                const retryVoucherBtn = document.createElement('button');
+                retryVoucherBtn.className = 'pay-button';
+                retryVoucherBtn.style.cssText = 'margin-top: 16px; max-width: 400px; margin-left: auto; margin-right: auto; cursor: pointer;';
+                retryVoucherBtn.innerHTML = '<span>Проверить код ещё раз</span>';
+                retryVoucherBtn.addEventListener('click', async () => {
+                    retryVoucherBtn.innerHTML = '<span>Проверяем...</span>';
+                    retryVoucherBtn.disabled = true;
+                    try {
+                        const path = API_PATHS[orderType] || API_PATHS.vouchers;
+                        const r = await fetch(`${API_URL}${path}${encodeURIComponent(orderId)}`);
+                        const d = await r.json();
+                        console.log('Manual recheck response:', JSON.stringify(d));
+                        const retryCodes = extractVoucherCodes(d);
+                        if (retryCodes.length) {
+                            retryVoucherBtn.remove();
+                            extraData['Код ваучера'] = retryCodes.join('\n');
+                            voucherCodes.style.display = 'block';
+                            voucherCodes.innerHTML = '<h3 style="margin-bottom:16px;">Ваши коды:</h3>' +
+                                retryCodes.map(code => `
+                                    <div class="voucher-code-box">
+                                        <code>${code}</code><br>
+                                        <button class="copy-btn" onclick="copyCode(this, '${code}')">Скопировать</button>
+                                    </div>
+                                `).join('');
+                            statusText.textContent = 'Сохраните коды! Также они отправлены на вашу почту.';
+                            await updateBaserowStatus('Success', extraData);
+                        } else {
+                            retryVoucherBtn.innerHTML = '<span>Код пока не готов. Попробуйте позже</span>';
+                            setTimeout(() => {
+                                retryVoucherBtn.innerHTML = '<span>Проверить код ещё раз</span>';
+                                retryVoucherBtn.disabled = false;
+                            }, 5000);
+                        }
+                    } catch (err) {
+                        retryVoucherBtn.innerHTML = '<span>Ошибка. Попробуйте ещё раз</span>';
+                        retryVoucherBtn.disabled = false;
+                    }
+                });
+                voucherCodes.style.display = 'block';
+                voucherCodes.innerHTML = '';
+                voucherCodes.appendChild(retryVoucherBtn);
             } else {
                 statusText.textContent = 'Заказ успешно выполнен!';
             }
