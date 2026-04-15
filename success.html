@@ -138,6 +138,22 @@
             await baserowUpdate(tableId, rowId, data);
         }
 
+        const statusArea = document.getElementById('statusArea');
+
+        function extractVoucherCodes(data) {
+            if (data.vouchers && data.vouchers.length) {
+                return data.vouchers.filter(c => c && String(c).trim());
+            }
+            if (data.voucherCode) return [data.voucherCode];
+            if (data.code) return [data.code];
+            if (data.codes && data.codes.length) return data.codes;
+            if (data.result && data.result.vouchers && data.result.vouchers.length) {
+                return data.result.vouchers.filter(c => c && String(c).trim());
+            }
+            if (data.result && data.result.code) return [data.result.code];
+            return [];
+        }
+
         if (!orderId) {
             showError('Заказ не найден', 'Не указан номер заказа');
         } else if (orderType === 'neural') {
@@ -165,7 +181,7 @@
         }
 
         let attempts = 0;
-        const MAX_ATTEMPTS = 30;
+        const MAX_ATTEMPTS = 60;
 
         async function checkOrder() {
             try {
@@ -178,6 +194,7 @@
                     return;
                 }
 
+                console.log('Order check response:', JSON.stringify(data));
                 const status = data.status;
 
                 if (status === 'Success') {
@@ -198,31 +215,56 @@
                     retryLater();
                 }
             } catch (e) {
-                showError('Ошибка связи', 'Не удалось проверить статус заказа. Попробуйте обновить страницу.');
+                retryLater();
             }
         }
 
         function retryLater() {
             attempts++;
             if (attempts < MAX_ATTEMPTS) {
-                setTimeout(checkOrder, 5000);
+                const delay = attempts <= 20 ? 5000 : 10000;
+                setTimeout(checkOrder, delay);
             } else {
-                statusText.textContent = 'Заказ обрабатывается дольше обычного. Проверьте позже или обратитесь в поддержку.';
-                spinner.style.display = 'none';
-                homeBtn.style.display = 'flex';
+                showTimeout();
             }
+        }
+
+        function showTimeout() {
+            spinner.style.display = 'none';
+            statusTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><br>Заказ обрабатывается';
+            statusText.textContent = 'Заказ выполняется дольше обычного. Нажмите кнопку ниже, чтобы проверить статус снова.';
+            orderInfo.style.display = 'block';
+            orderInfo.textContent = `Заказ: ${orderId}`;
+
+            const retryBtn = document.createElement('button');
+            retryBtn.className = 'pay-button';
+            retryBtn.style.cssText = 'margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; cursor: pointer;';
+            retryBtn.innerHTML = '<span>Проверить снова</span>';
+            retryBtn.addEventListener('click', () => {
+                retryBtn.remove();
+                attempts = 0;
+                spinner.style.display = '';
+                statusTitle.textContent = 'Проверяем заказ...';
+                statusText.textContent = 'Пожалуйста, подождите';
+                orderInfo.style.display = 'none';
+                checkOrder();
+            });
+            statusArea.insertBefore(retryBtn, homeBtn);
+            homeBtn.style.display = 'flex';
         }
 
         async function showSuccess(data) {
             spinner.style.display = 'none';
             statusTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg><br>Заказ выполнен!';
 
+            const codes = extractVoucherCodes(data);
             const extraData = {};
-            if (data.vouchers && data.vouchers.length) {
-                extraData['Код ваучера'] = data.vouchers.join('\n');
+
+            if (codes.length) {
+                extraData['Код ваучера'] = codes.join('\n');
                 voucherCodes.style.display = 'block';
                 voucherCodes.innerHTML = '<h3 style="margin-bottom:16px;">Ваши коды:</h3>' +
-                    data.vouchers.map(code => `
+                    codes.map(code => `
                         <div class="voucher-code-box">
                             <code>${code}</code><br>
                             <button class="copy-btn" onclick="copyCode(this, '${code}')">Скопировать</button>
@@ -235,6 +277,8 @@
                 statusText.textContent = 'Звёзды зачислены в ваш Telegram!';
             } else if (orderType === 'topup') {
                 statusText.textContent = 'Пополнение выполнено!';
+            } else if (orderType === 'vouchers') {
+                statusText.textContent = 'Заказ выполнен! Код ваучера отправлен на вашу почту.';
             } else {
                 statusText.textContent = 'Заказ успешно выполнен!';
             }
@@ -267,9 +311,10 @@
 
         async function sendTelegramNotification(data) {
             try {
+                const tgCodes = extractVoucherCodes(data);
                 let msg = `✅ *Заказ выполнен!*\n\n🆔 Заказ: ${orderId}\n📧 Email: ${data.email || 'не указан'}`;
-                if (data.vouchers && data.vouchers.length) {
-                    msg += `\n🎫 Коды:\n${data.vouchers.map(c => '`' + c + '`').join('\n')}`;
+                if (tgCodes.length) {
+                    msg += `\n🎫 Коды:\n${tgCodes.map(c => '`' + c + '`').join('\n')}`;
                 }
                 if (data.amount) msg += `\n💰 Сумма: ${data.amount} ₽`;
                 msg += `\n⏰ ${new Date().toLocaleString('ru-RU')}`;
